@@ -86,7 +86,7 @@ const createTask = async (seconds, payload) => {
   await tasksClient.createTask(request)
 }
 
-module.exports['manage-subscriptions'] = async (req, res) => {
+module.exports['renew-gmail-push-notifications-watch'] = async (req, res) => {
   try {
     await stop()
 
@@ -96,7 +96,7 @@ module.exports['manage-subscriptions'] = async (req, res) => {
 
     await createTask(dateForReset)
 
-    res.sendStatus(200)
+    res.sendStatus(204)
   }
   catch (err) {
     console.log(err)

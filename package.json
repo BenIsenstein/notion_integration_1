@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "deployment_target_name": "process-desired-emails",
+  "deployment_target_name": "contacts-add-whatsapp-link",
   "scripts": {
     "test": "test",
     "start": "npx functions-framework --signature-type=cloudevent",

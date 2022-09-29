@@ -1,6 +1,6 @@
 const { Client, isFullPage } = require("@notionhq/client")
 
-module.exports['contact-add-whatsapp-url'] = async (req, res) => {
+module.exports['contacts-add-whatsapp-link'] = async (req, res) => {
     const notion = new Client({
         auth: process.env.NOTION_API_KEY
     })

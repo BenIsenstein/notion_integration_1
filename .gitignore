@@ -1,4 +1,7 @@
 node_modules/*
+node_modules
 credentials/*
+credentials
 env.json
 env.yaml
+.DS_Store

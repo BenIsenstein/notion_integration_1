@@ -1,5 +1,10 @@
 env.json
 env.yaml
 local.index.js
+node_modules
 node_modules/*
+deploy-scripts
 deploy-scripts/*
+.git
+.git/*
+.gitignore
