@@ -1,5 +1,1 @@
-require('fs')
-.readdirSync(__dirname)
-.forEach((filename) => {
-    Object.assign(module.exports, require(`./${filename}`))
-})
+require('../helpers').aggNamedExports(__dirname, module.exports)

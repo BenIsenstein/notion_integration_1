@@ -8,3 +8,5 @@ deploy-scripts/*
 .git
 .git/*
 .gitignore
+controllers/renew-watch-manual.js
+controllers/migrate-contacts-manual.js
