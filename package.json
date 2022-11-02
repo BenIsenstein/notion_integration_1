@@ -7,7 +7,7 @@
   "scripts": {
     "test": "test",
     "start": "npx functions-framework --signature-type=cloudevent",
-    "deploy-current-target": "./deploy-scripts/deploy-current-target.js",
+    "deploy-current-target": "node ./deploy-scripts/deploy-current-target.js",
     "deploy-all": "node ./deploy-scripts/deploy-all.js",
     "create-new-function": "add controller file; add deploy script;",
     "renew-watch": "node ./controllers/renew-watch-manual.js",

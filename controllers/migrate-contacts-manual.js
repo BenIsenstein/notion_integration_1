@@ -37,6 +37,8 @@ const main = async () => {
                     "WhatsApp Msg": `https://api.whatsapp.com/send?phone=${phone}`
                 }
             })
+            
+            console.log(`Updated contact for ${properties.Name.title[0].plain_text}`)
         } catch (err) {
             console.log(err)
         }
