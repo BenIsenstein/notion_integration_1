@@ -2,24 +2,7 @@ const { CloudTasksClient } = require('@google-cloud/tasks');
 const { google } = require('googleapis')
 const { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } = require('../constants')
 
-for (const [key, value] of Object.entries(require('../env.json'))) {
-    process.env[key] = value
-}
-
-const tasksClient = new CloudTasksClient({
-  keyFilename: `${__dirname}/../credentials/cloud-tasks-client-account-credentials.json`
-})
 const gmail = google.gmail('v1')
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_CALLBACK_URL
-)
-
-oauth2Client.setCredentials(require('../credentials/tokens.json'))
-google.options({
-    auth: oauth2Client
-})
 
 /* Function to be used later with multiple clients using the application */
 
@@ -59,6 +42,9 @@ const watch = async (
 }
 
 const createTask = async (seconds, payload) => {
+  const tasksClient = new CloudTasksClient({
+    keyFilename: `${__dirname}/../credentials/cloud-tasks-client-account-credentials.json`
+  })
   const url = process.env.REFRESH_GMAIL_PUSH_NOTIFICATION_WATCH_URL
   const serviceAccountEmail = require('../credentials/cloud-tasks-client-account-credentials.json').client_email
   const location = 'us-central1'
@@ -69,10 +55,6 @@ const createTask = async (seconds, payload) => {
     httpRequest: {
       headers: {
         'Content-Type': 'text/plain',
-      },
-      oidcToken: {
-        serviceAccountEmail,
-        audience: (new URL(url)).origin
       },
       httpMethod: 'POST',
       url
@@ -90,18 +72,20 @@ const createTask = async (seconds, payload) => {
   await tasksClient.createTask(request)
 }
 
-;(async () => {
-    try {
-        await stop()
-    
-        //const labelIds = await getLabelIdsByName()
-        const watchRes = await watch()
-        //const dateForReset = (+watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS) / 1000
-    
-        //await createTask(dateForReset)
-    
-      }
-      catch (err) {
-        console.log(err)
-      }
-})()
+module.exports.renewGmailPushNotificationsWatch = async (req, res) => {
+  try {
+    await stop()
+
+    //const labelIds = await getLabelIdsByName()
+    const watchRes = await watch()
+    const dateForReset = (+watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS) / 1000
+
+    await createTask(dateForReset)
+
+    res.sendStatus(204)
+  }
+  catch (err) {
+    console.log(err)
+    res.sendStatus(500)
+  }
+}

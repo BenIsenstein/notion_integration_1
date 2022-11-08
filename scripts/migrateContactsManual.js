@@ -1,6 +1,7 @@
+require("dotenv").config()
 const { Client, isFullPage } = require("@notionhq/client")
 
-module.exports['contacts-add-whatsapp-link'] = async (req, res) => {
+const main = async () => {
     const notion = new Client({
         auth: process.env.NOTION_API_KEY
     })
@@ -10,20 +11,10 @@ module.exports['contacts-add-whatsapp-link'] = async (req, res) => {
         contactsForUpdate = await notion.databases.query({
             database_id: process.env.CONTACTS_DB_ID,
             filter: {
-                and: [
-                    {
-                        property: "WhatsApp Msg",
-                        url: {
-                            equals: ""
-                        }
-                    },
-                    {
-                        property: "Phone",
-                        phone_number: {
-                            is_not_empty: true
-                        }
-                    }
-                ]
+                property: "Phone",
+                phone_number: {
+                    is_not_empty: true
+                }
             }
         })
     } catch (err) {
@@ -43,8 +34,12 @@ module.exports['contacts-add-whatsapp-link'] = async (req, res) => {
                     "WhatsApp Msg": `https://api.whatsapp.com/send?phone=${phone}`
                 }
             })
+            
+            console.log(`Updated contact for ${properties.Name.title[0].plain_text}`)
         } catch (err) {
             console.log(err)
         }
     }
 }
+
+main()

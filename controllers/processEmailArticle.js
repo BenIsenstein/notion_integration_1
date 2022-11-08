@@ -4,17 +4,6 @@ const { Client, isFullPage } = require("@notionhq/client")
 const { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags } = require('../helpers')
 const { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } = require('../constants')
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_CALLBACK_URL
-)
-
-oauth2Client.setCredentials(require('../credentials/tokens.json'))
-google.options({
-  auth: oauth2Client
-})
-
 const gmail = google.gmail('v1')
 const storage = new Storage({
   keyFilename: `${__dirname}/../credentials/articles-service-account-credentials.json`
@@ -169,11 +158,10 @@ const createNotionArticlePage = async ({ from, subject, content, pdfUrl, htmlUrl
     })
 }
 
-module.exports['process-desired-emails'] = async (event) => {
+module.exports.processEmailArticle = async (event) => {
   if (!event.data) return
   
   const data = Buffer.from(event.data, 'base64').toString()  // in cloud
-  //const data = Buffer.from(event.data.message, 'base64').toString()  // in local
   const { emailAddress } = JSON.parse(data)
   const email = await getRecentEmailForNotion(emailAddress)
 

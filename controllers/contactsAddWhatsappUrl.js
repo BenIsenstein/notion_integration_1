@@ -1,10 +1,6 @@
 const { Client, isFullPage } = require("@notionhq/client")
 
-for (const [key, value] of Object.entries(require('../env.json'))) {
-    process.env[key] = value
-}
-
-const main = async () => {
+module.exports.contactsAddWhatsappUrl = async (req, res) => {
     const notion = new Client({
         auth: process.env.NOTION_API_KEY
     })
@@ -14,10 +10,20 @@ const main = async () => {
         contactsForUpdate = await notion.databases.query({
             database_id: process.env.CONTACTS_DB_ID,
             filter: {
-                property: "Phone",
-                phone_number: {
-                    is_not_empty: true
-                }
+                and: [
+                    {
+                        property: "WhatsApp Msg",
+                        url: {
+                            equals: ""
+                        }
+                    },
+                    {
+                        property: "Phone",
+                        phone_number: {
+                            is_not_empty: true
+                        }
+                    }
+                ]
             }
         })
     } catch (err) {
@@ -37,12 +43,8 @@ const main = async () => {
                     "WhatsApp Msg": `https://api.whatsapp.com/send?phone=${phone}`
                 }
             })
-            
-            console.log(`Updated contact for ${properties.Name.title[0].plain_text}`)
         } catch (err) {
             console.log(err)
         }
     }
 }
-
-main()

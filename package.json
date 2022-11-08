@@ -3,26 +3,28 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "deployment_target_name": "contacts-add-whatsapp-link",
   "scripts": {
     "test": "test",
-    "start": "npx functions-framework --signature-type=cloudevent",
-    "deploy-current-target": "node ./deploy-scripts/deploy-current-target.js",
-    "deploy-all": "node ./deploy-scripts/deploy-all.js",
-    "create-new-function": "add controller file; add deploy script;",
-    "renew-watch": "node ./controllers/renew-watch-manual.js",
-    "migrate-contacts": "node ./controllers/migrate-contacts-manual.js"
+    "start": "node index.js",
+    "build": "tsc",
+    "renew-watch": "node ./scripts/renewWatchManual.js",
+    "migrate-contacts": "node ./scripts/migrateContactsManual.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/functions-framework": "^3.1.2",
     "@google-cloud/storage": "^6.5.0",
     "@google-cloud/tasks": "^3.0.2",
     "@notionhq/client": "^2.2.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
     "googleapis": "^107.0.0",
+    "http-errors": "^2.0.0",
     "iconv": "^3.0.1",
+    "morgan": "^1.10.0",
     "puppeteer": "^17.1.3",
-    "quoted-printable": "^1.0.1"
+    "quoted-printable": "^1.0.1",
+    "typescript": "^4.8.4"
   }
 }
