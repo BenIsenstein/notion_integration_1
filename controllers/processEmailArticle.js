@@ -13,28 +13,65 @@ const notion = new Client({
 })
 
 // Get a message
-const getRecentEmailForNotion = async (email) => {
+const getEmailById = async (email, msgId) => {
   try {
-    const listMsgRes = await gmail.users.messages.list({
-      userId: email,
-      labelIds: [NOTION_GMAIL_LABEL_ID],
-      maxResults: 1,
-      includeSpamTrash: false
-    })
-    const messageId = listMsgRes.data.messages?.[0]?.id
+    let hasTriedListMsg = false
+    let messageId
+    let rawMessageRes
+    let defaultMessageRes
+
+    if (msgId) {
+      messageId = msgId
+    } else {
+      const listMsgRes = await gmail.users.messages.list({
+        userId: email,
+        labelIds: [NOTION_GMAIL_LABEL_ID],
+        maxResults: 1,
+        includeSpamTrash: false
+      })
+
+      messageId = listMsgRes.data.messages?.[0]?.id
+      hasTriedListMsg = true
+    }
 
     if (!messageId) return false
 
-    const rawMessageRes = await gmail.users.messages.get({
-      userId: email,
-      id: messageId,
-      format: 'raw'
-    })
+    try {
+      rawMessageRes = await gmail.users.messages.get({
+        userId: email,
+        id: messageId,
+        format: 'raw'
+      })
+  
+      defaultMessageRes = await gmail.users.messages.get({
+        userId: email,
+        id: messageId
+      })
+    }
+    catch (err) {
+      if (hasTriedListMsg) {
+        throw new Error(err)
+      }
+      const listMsgRes = await gmail.users.messages.list({
+        userId: email,
+        labelIds: [NOTION_GMAIL_LABEL_ID],
+        maxResults: 1,
+        includeSpamTrash: false
+      })
 
-    const defaultMessageRes = await gmail.users.messages.get({
-      userId: email,
-      id: messageId
-    })
+      messageId = listMsgRes.data.messages?.[0]?.id
+
+      rawMessageRes = await gmail.users.messages.get({
+        userId: email,
+        id: messageId,
+        format: 'raw'
+      })
+
+      defaultMessageRes = await gmail.users.messages.get({
+        userId: email,
+        id: messageId
+      })
+    }
 
     return {
       raw: rawMessageRes?.data,
@@ -59,7 +96,7 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
 
   if (!messageid || !mailHtml) return
 
-  const subject = headers.find(h => h.name === 'Subject')?.value
+  const subject = headers.find(h => h.name === 'Subject')?.value?.slice(0,96)
   const from = stripTags(headers.find(h => h.name === 'From')?.value)
   const content = await htmlToPdfBuffer(mailHtml)
   
@@ -75,7 +112,6 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
   }
 
   if (doFilesAlreadyExist) return false
-
   if (!content) return false
 
   await pdfFile.save(content)
@@ -159,27 +195,46 @@ const createNotionArticlePage = async ({ from, subject, content, pdfUrl, htmlUrl
 }
 
 module.exports.processEmailArticle = async (req, res) => {
-  console.log('process email reqest body: ')
-  console.log(req.body)
-  res.sendStatus(204)
-  //if (!event.data) return
-  
-  //const data = Buffer.from(event.data, 'base64').toString()  // in cloud
-  //const { emailAddress } = JSON.parse(data)
-  // const email = await getRecentEmailForNotion(emailAddress)
+  if (!req.body?.message) {
+    res.status(500).send('No message')
+    return
+  }
 
-  // if (!email) return
+  const { data, messageId } = req.body.message
 
-  // const info = await extractInfoFromMessage(email)
+  if (!data) {
+    res.status(500).send('No message data')
+    return
+  }
 
-  // if (!info) return
+  const dataJson = Buffer.from(data, 'base64').toString()
+  const { emailAddress } = JSON.parse(dataJson)
+  const email = await getEmailById(emailAddress, messageId)
 
-  // const createPageRes = await createNotionArticlePage(info)
+  if (!email) {
+    res.status(500).send('No email at the given message id or inbox')
+    return
+  }
 
-  // if (createPageRes) {
-  //   await gmail.users.messages.trash({
-  //     userId: emailAddress,
-  //     id: info.messageid
-  //   })
-  // }
+  const info = await extractInfoFromMessage(email)
+
+  if (!info) {
+    res.status(500).send('No info extracted from email')
+    return
+  }
+
+  const createPageRes = await createNotionArticlePage(info)
+
+  if (createPageRes) {
+    await gmail.users.messages.trash({
+      userId: emailAddress,
+      id: info.messageid
+    })
+
+    res.sendStatus(204)
+    return
+  }
+
+  res.status(500).send('Unsuccessful Notion page creation')
+  return
 }
