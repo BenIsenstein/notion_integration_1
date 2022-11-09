@@ -46,7 +46,6 @@ const createTask = async (seconds, payload) => {
     keyFilename: `${__dirname}/../credentials/cloud-tasks-client-account-credentials.json`
   })
   const url = process.env.REFRESH_GMAIL_PUSH_NOTIFICATION_WATCH_URL
-  const serviceAccountEmail = require('../credentials/cloud-tasks-client-account-credentials.json').client_email
   const location = 'us-central1'
   const queue = 'refresh-gmail-push-notification-watch-queue'
   const parent = tasksClient.queuePath(process.env.GCP_PROJECT, location, queue)
@@ -69,7 +68,7 @@ const createTask = async (seconds, payload) => {
   }
 
   const request = { parent, task }
-  await tasksClient.createTask(request)
+  return await tasksClient.createTask(request)
 }
 
 module.exports.renewGmailPushNotificationsWatch = async (req, res) => {
@@ -80,8 +79,10 @@ module.exports.renewGmailPushNotificationsWatch = async (req, res) => {
     const watchRes = await watch()
     const dateForReset = (+watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS) / 1000
 
-    await createTask(dateForReset)
+    const taskRes = await createTask(dateForReset)
 
+    console.log('Next scheduled push notification watch:')
+    console.log(taskRes[0])
     res.sendStatus(204)
   }
   catch (err) {

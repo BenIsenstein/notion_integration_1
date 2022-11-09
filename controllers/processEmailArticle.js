@@ -158,25 +158,28 @@ const createNotionArticlePage = async ({ from, subject, content, pdfUrl, htmlUrl
     })
 }
 
-module.exports.processEmailArticle = async (event) => {
-  if (!event.data) return
+module.exports.processEmailArticle = async (req, res) => {
+  console.log('process email reqest body: ')
+  console.log(req.body)
+  res.sendStatus(204)
+  //if (!event.data) return
   
-  const data = Buffer.from(event.data, 'base64').toString()  // in cloud
-  const { emailAddress } = JSON.parse(data)
-  const email = await getRecentEmailForNotion(emailAddress)
+  //const data = Buffer.from(event.data, 'base64').toString()  // in cloud
+  //const { emailAddress } = JSON.parse(data)
+  // const email = await getRecentEmailForNotion(emailAddress)
 
-  if (!email) return
+  // if (!email) return
 
-  const info = await extractInfoFromMessage(email)
+  // const info = await extractInfoFromMessage(email)
 
-  if (!info) return
+  // if (!info) return
 
-  const createPageRes = await createNotionArticlePage(info)
+  // const createPageRes = await createNotionArticlePage(info)
 
-  if (createPageRes) {
-    await gmail.users.messages.trash({
-      userId: emailAddress,
-      id: info.messageid
-    })
-  }
+  // if (createPageRes) {
+  //   await gmail.users.messages.trash({
+  //     userId: emailAddress,
+  //     id: info.messageid
+  //   })
+  // }
 }
