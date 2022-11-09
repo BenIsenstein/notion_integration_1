@@ -2,6 +2,9 @@
 require("dotenv").config()
 require("./helpers").initGoogleApi()
 
+// Start cron jobs
+require("./cron")
+
 // Import other packages
 const createError = require('http-errors')
 const express = require('express')
