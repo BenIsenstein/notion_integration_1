@@ -1,2 +1,2 @@
 [phases.setup]
-nixPkgs = ['...', 'python38']
+nixPkgs = ['...', 'python38', 'gnumake', 'gcc']
