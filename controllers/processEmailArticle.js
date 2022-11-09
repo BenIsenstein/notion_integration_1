@@ -61,7 +61,7 @@ const getEmailById = async (email, msgId) => {
 
       messageId = listMsgRes.data.messages?.[0]?.id
 
-      if (!messageId) return false
+      if (!messageId) return 'ALL_PROCESSED'
 
       rawMessageRes = await gmail.users.messages.get({
         userId: email,
@@ -215,6 +215,10 @@ module.exports.processEmailArticle = async (req, res) => {
 
   if (!email) {
     res.status(500).send('No email at the given message id or inbox')
+    return
+  }
+  if (email === 'ALL_PROCESSED') {
+    res.sendStatus(204)
     return
   }
 
