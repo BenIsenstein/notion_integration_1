@@ -6,7 +6,6 @@
   "scripts": {
     "test": "test",
     "start": "node index.js",
-    "build": "tsc",
     "renew-watch": "node ./scripts/renewWatchManual.js",
     "migrate-contacts": "node ./scripts/migrateContactsManual.js"
   },
