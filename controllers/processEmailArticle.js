@@ -61,6 +61,8 @@ const getEmailById = async (email, msgId) => {
 
       messageId = listMsgRes.data.messages?.[0]?.id
 
+      if (!messageId) return false
+
       rawMessageRes = await gmail.users.messages.get({
         userId: email,
         id: messageId,
