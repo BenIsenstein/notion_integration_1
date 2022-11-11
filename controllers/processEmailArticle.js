@@ -1,5 +1,5 @@
 const { Client, isFullPage } = require("@notionhq/client")
-const { storage, gmail } = require('../repositories')
+const { storage, gmail, withConnectAndClose } = require('../repositories')
 const { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags } = require('../helpers')
 const { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } = require('../constants')
 
@@ -192,50 +192,51 @@ const createNotionArticlePage = async ({ from, subject, content, pdfUrl, htmlUrl
 }
 
 module.exports.processEmailArticle = async (req, res) => {
-  if (!req.body?.message) {
-    res.status(500).send('No message')
-    return
-  }
+  try {
+    if (!req.body?.message) {
+      throw new Error('No message')
+    }  
+    if (!req.body.message.data) {
+      throw new Error('No message data')
+    }
 
-  const { data, messageId } = req.body.message
-
-  if (!data) {
-    res.status(500).send('No message data')
-    return
-  }
-
-  const dataJson = Buffer.from(data, 'base64').toString()
-  const { emailAddress } = JSON.parse(dataJson)
-  const email = await getEmailById(emailAddress, messageId)
-
-  if (!email) {
-    res.status(500).send('No email at the given message id or inbox')
-    return
-  }
-  if (email === 'ALL_PROCESSED') {
-    res.sendStatus(204)
-    return
-  }
-
-  const info = await extractInfoFromMessage(email)
-
-  if (!info) {
-    res.status(500).send('No info extracted from email')
-    return
-  }
-
-  const createPageRes = await createNotionArticlePage(info)
-
-  if (createPageRes) {
-    await gmail.users.messages.trash({
-      userId: emailAddress,
-      id: info.messageid
+    const { data, messageId } = req.body.message
+    const dataJson = Buffer.from(data, 'base64').toString()
+    const { emailAddress } = JSON.parse(dataJson)
+    const email = await getEmailById(emailAddress, messageId)
+  
+    if (!email) {
+      throw new Error('No email at the given message id or inbox')
+    }
+    if (email === 'ALL_PROCESSED') {
+      res.sendStatus(204)
+      return
+    }
+  
+    const info = await extractInfoFromMessage(email)
+  
+    if (!info) {
+      throw new Error('No info extracted from email')
+    }
+  
+    const createPageRes = await createNotionArticlePage(info)
+  
+    if (createPageRes) {
+      await gmail.users.messages.trash({
+        userId: emailAddress,
+        id: info.messageid
+      })
+  
+      res.sendStatus(204)
+      return
+    }
+  
+    throw new Error('Unsuccessful Notion page creation')
+  } catch (error) {
+    await withConnectAndClose('prod', 'article-pubsub-failures', async (col) => {
+      await col.insertOne({ date, time, error })
     })
-
-    res.sendStatus(204)
-    return
+    console.log(error)
+    res.status(500).send(error)
   }
-
-  res.status(500).send('Unsuccessful Notion page creation')
-  return
 }
