@@ -1,8 +1,5 @@
-const { CloudTasksClient } = require('@google-cloud/tasks');
-const { google } = require('googleapis')
+const { gmail, tasksClient } = require('../repositories')
 const { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } = require('../constants')
-
-const gmail = google.gmail('v1')
 
 /* Function to be used later with multiple clients using the application */
 
@@ -42,9 +39,6 @@ const watch = async (
 }
 
 const createTask = async (seconds, payload) => {
-  const tasksClient = new CloudTasksClient({
-    keyFilename: `${__dirname}/../credentials/cloud-tasks-client-account-credentials.json`
-  })
   const url = process.env.REFRESH_GMAIL_PUSH_NOTIFICATION_WATCH_URL
   const location = 'us-central1'
   const queue = 'refresh-gmail-push-notification-watch-queue'

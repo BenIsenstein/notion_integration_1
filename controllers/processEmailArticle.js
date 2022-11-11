@@ -1,13 +1,8 @@
-const { google } = require('googleapis')
-const {Storage} = require('@google-cloud/storage')
 const { Client, isFullPage } = require("@notionhq/client")
+const { storage, gmail } = require('../repositories')
 const { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags } = require('../helpers')
 const { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } = require('../constants')
 
-const gmail = google.gmail('v1')
-const storage = new Storage({
-  keyFilename: `${__dirname}/../credentials/articles-service-account-credentials.json`
-})
 const notion = new Client({
   auth: process.env.NOTION_API_KEY
 })

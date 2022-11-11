@@ -1,6 +1,6 @@
 require("dotenv").config()
 require("../helpers").initGoogleApi()
-const gmail = require('googleapis').google.gmail('v1')
+const { gmail } = require('../repositories')
 const { NOTION_GMAIL_LABEL_ID, USER_ID, PUBSUB_TOPIC } = require('../constants')
 
 const stop = async (userId = USER_ID) => {
