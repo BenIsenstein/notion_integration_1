@@ -1,6 +1,6 @@
 const { Client, isFullPage } = require("@notionhq/client")
 const { storage, gmail, withConnectAndClose } = require('../repositories')
-const { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags } = require('../helpers')
+const { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } = require('../helpers')
 const { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } = require('../constants')
 
 const notion = new Client({
@@ -234,7 +234,7 @@ module.exports.processEmailArticle = async (req, res) => {
     throw new Error('Unsuccessful Notion page creation')
   } catch (error) {
     await withConnectAndClose('prod', 'article-pubsub-failures', async (col) => {
-      await col.insertOne({ date, time, error })
+      await col.insertOne({ ...makeDateAndTime, error })
     })
     console.log(error)
     res.status(500).send(error)
