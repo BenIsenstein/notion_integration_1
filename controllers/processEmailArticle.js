@@ -8,7 +8,7 @@ const notion = new Client({
 })
 
 // Get a message
-const getEmailById = async (email, msgId) => {
+const getEmail = async (email) => {
   try {
     let messageId
     
@@ -55,7 +55,7 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
   const { headers } = multipart.payload
   const parsed = parseGmail(raw)
   const messageid = parsed?.messageid
-  const mailHtml = parsed?.content?.[1]?.content || parsed?.content?.[0]?.content
+  const mailHtml = parsed?.content?.[1]?.content || parsed?.content?.[0]?.content || parsed?.content
 
   if (!messageid || !mailHtml) {
     throw new Error('Missing either messageid or mail html')
@@ -172,10 +172,10 @@ module.exports.processEmailArticle = async (req, res) => {
       throw new Error('No message data')
     }
 
-    const { data, messageId } = req.body.message
+    const { data } = req.body.message
     const dataJson = Buffer.from(data, 'base64').toString()
     const { emailAddress } = JSON.parse(dataJson)
-    const email = await getEmailById(emailAddress, messageId)
+    const email = await getEmail(emailAddress)
   
     if (!email) {
       throw new Error('No email at the given message id or inbox')
