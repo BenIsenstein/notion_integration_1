@@ -3,8 +3,9 @@ const {
     processEmailArticle,
     renewGmailPushNotificationsWatch
 } = require('../controllers')
+const { inspectEmailPub } = require('../middleware')
 
-router.post('/articles', processEmailArticle)
+router.post('/articles', inspectEmailPub, processEmailArticle)
 router.post('/gmail-inbox-subscriptions', renewGmailPushNotificationsWatch)
 
 router.get('/health-check', (req, res) => {
