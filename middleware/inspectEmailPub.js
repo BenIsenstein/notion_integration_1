@@ -11,7 +11,18 @@ module.exports.inspectEmailPub = async (req, res, next) => {
         }
 
         const dataJson = Buffer.from(data, 'base64').toString()
-        // const { emailAddress: userId } = JSON.parse(dataJson)
+        const { emailAddress: userId, historyId: startHistoryId } = JSON.parse(dataJson)
+        const history = await gmail.users.history.list({
+            userId,
+            startHistoryId,
+            //labelId: NOTION_GMAIL_LABEL_ID,
+            historyTypes: [
+                'messageAdded',
+                'messageDeleted',
+                'labelAdded',
+                'labelRemoved'
+            ]
+        })
         
         // const id = ''
         // const messageRes = await gmail.users.messages.get({ userId, id })
@@ -22,7 +33,7 @@ module.exports.inspectEmailPub = async (req, res, next) => {
 
         //await articlePubsubLogs.insertOne({ id, datetime, from, subject })
         await withConnectAndClose('prod', 'article-pubsub-logs', async (coll) => {
-            await coll.insertOne({ ...JSON.parse(dataJson), datetime })
+            await coll.insertOne({ ...history.data, datetime })
         })
     } catch (err) {
         console.log(err)

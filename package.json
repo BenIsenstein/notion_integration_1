@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
+    "dev": "rm -rf credentials && mkdir credentials && nodemon --ignore credentials/ index.js",
     "start": "rm -rf credentials && mkdir credentials && node index.js",
     "start-railway-watch": "node ./scripts/startRailwayWatch.js",
     "renew-watch": "node ./scripts/renewWatchManual.js",
