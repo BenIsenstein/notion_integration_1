@@ -1,4 +1,4 @@
-const { articlePubsubLogs, closeMongoDb, connectMongoDb, gmail } = require('../repositories')
+const { gmail, withConnectAndClose  } = require('../repositories')
 const { NOTION_GMAIL_LABEL_ID } = require('../constants')
 
 module.exports.inspectEmailPub = async (req, res, next) => {
@@ -21,12 +21,9 @@ module.exports.inspectEmailPub = async (req, res, next) => {
         const datetime = Intl.DateTimeFormat('en-US', { dateStyle: 'short', timeStyle: 'long' }).format()
 
         //await articlePubsubLogs.insertOne({ id, datetime, from, subject })
-        await connectMongoDb()
-        await articlePubsubLogs.insertOne({
-            ...JSON.parse(dataJson),
-            datetime
+        await withConnectAndClose('prod', 'article-pubsub-logs', async (coll) => {
+            await coll.insertOne({ ...JSON.parse(dataJson), datetime })
         })
-        await closeMongoDb()
     } catch (err) {
         console.log(err)
     }
