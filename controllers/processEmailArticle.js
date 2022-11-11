@@ -10,66 +10,30 @@ const notion = new Client({
 // Get a message
 const getEmailById = async (email, msgId) => {
   try {
-    let hasTriedListMsg = false
     let messageId
-    let rawMessageRes
-    let defaultMessageRes
+    
+    const listMsgRes = await gmail.users.messages.list({
+      userId: email,
+      labelIds: [NOTION_GMAIL_LABEL_ID],
+      maxResults: 1,
+      includeSpamTrash: false
+    })
 
-    if (msgId) {
-      messageId = msgId
-    } else {
-      const listMsgRes = await gmail.users.messages.list({
-        userId: email,
-        labelIds: [NOTION_GMAIL_LABEL_ID],
-        maxResults: 1,
-        includeSpamTrash: false
-      })
+    messageId = listMsgRes.data.messages?.[0]?.id
 
-      messageId = listMsgRes.data.messages?.[0]?.id
-      hasTriedListMsg = true
-    }
+    if (!messageId) return 'ALL_PROCESSED'
 
-    if (!messageId) return false
+    const rawMessageRes = await gmail.users.messages.get({
+      userId: email,
+      id: messageId,
+      format: 'raw'
+    })
 
-    try {
-      rawMessageRes = await gmail.users.messages.get({
-        userId: email,
-        id: messageId,
-        format: 'raw'
-      })
-  
-      defaultMessageRes = await gmail.users.messages.get({
-        userId: email,
-        id: messageId
-      })
-    }
-    catch (err) {
-      if (hasTriedListMsg) {
-        throw new Error(err)
-      }
-      const listMsgRes = await gmail.users.messages.list({
-        userId: email,
-        labelIds: [NOTION_GMAIL_LABEL_ID],
-        maxResults: 1,
-        includeSpamTrash: false
-      })
-
-      messageId = listMsgRes.data.messages?.[0]?.id
-
-      if (!messageId) return 'ALL_PROCESSED'
-
-      rawMessageRes = await gmail.users.messages.get({
-        userId: email,
-        id: messageId,
-        format: 'raw'
-      })
-
-      defaultMessageRes = await gmail.users.messages.get({
-        userId: email,
-        id: messageId
-      })
-    }
-
+    const defaultMessageRes = await gmail.users.messages.get({
+      userId: email,
+      id: messageId
+    })
+    
     return {
       raw: rawMessageRes?.data,
       multipart: defaultMessageRes?.data
@@ -83,7 +47,9 @@ const getEmailById = async (email, msgId) => {
 
 // Extract sender, subject and content
 const extractInfoFromMessage = async ({ raw, multipart }) => {
-  if (!raw || !multipart) return false
+  if (!raw || !multipart) {
+    throw new Error('Missing either raw or multipart email content')
+  }
 
   const bucket = storage.bucket(ARTICLES_BUCKET_NAME)
   const { headers } = multipart.payload
@@ -91,7 +57,9 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
   const messageid = parsed?.messageid
   const mailHtml = parsed?.content?.[1]?.content || parsed?.content?.[0]?.content
 
-  if (!messageid || !mailHtml) return
+  if (!messageid || !mailHtml) {
+    throw new Error('Missing either messageid or mail html')
+  }
 
   const subject = headers.find(h => h.name === 'Subject')?.value?.slice(0,96)
   const from = stripTags(headers.find(h => h.name === 'From')?.value)
@@ -108,8 +76,12 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
     doFilesAlreadyExist = false
   }
 
-  if (doFilesAlreadyExist) return false
-  if (!content) return false
+  if (doFilesAlreadyExist) {
+    throw new Error('pdf and html files for this email already exist')
+  }
+  if (!content) {
+    throw new Error('Failure creating pdf buffer of email')
+  }
 
   await pdfFile.save(content)
   await htmlFile.save(mailHtml)
@@ -234,7 +206,7 @@ module.exports.processEmailArticle = async (req, res) => {
     throw new Error('Unsuccessful Notion page creation')
   } catch (error) {
     await withConnectAndClose('prod', 'article-pubsub-failures', async (col) => {
-      await col.insertOne({ ...makeDateAndTime, error })
+      await col.insertOne({ ...makeDateAndTime(), error: error.toString() })
     })
     console.log(error)
     res.status(500).send(error)

@@ -33,7 +33,7 @@ module.exports.inspectEmailPub = async (req, res, next) => {
     } catch (error) {
         try {
             await withConnectAndClose('prod', 'article-pubsub-failures', async (col) => {
-                await col.insertOne({ date, time, error })
+                await col.insertOne({ date, time, error: error.toString() })
             })
         } catch (err) {
             console.log('Failure while logging pubsub inspection error: ', err)
