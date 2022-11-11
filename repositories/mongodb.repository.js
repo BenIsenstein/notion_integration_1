@@ -20,7 +20,17 @@ const openCollection = async (db, collection) => {
     }
 }
 
+const openDatabase = async (db) => {
+    await mongoClient.connect()
+
+    return {
+        database: mongoClient.db(db),
+        close: mongoClient.close.bind(mongoClient)
+    }
+}
+
 module.exports = {
     withConnectAndClose,
-    openCollection
+    openCollection,
+    openDatabase
 }

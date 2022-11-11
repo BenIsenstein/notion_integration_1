@@ -1,21 +1,22 @@
-const { gmail, withConnectAndClose  } = require('../repositories')
+const { gmail, openDatabase, withConnectAndClose } = require('../repositories')
 const { NOTION_GMAIL_LABEL_ID } = require('../constants')
+const { makeDateAndTime } = require('../helpers')
 
 module.exports.inspectEmailPub = async (req, res, next) => {
+    const { date, time } = makeDateAndTime()
+
     try {
+        const { database, close } = await openDatabase('prod')
+        const logsWithHistory = database.collection('article-pubsub-logs-with-history')
+        const logs = database.collection('article-pubsub-logs')
         const data = req.body?.message?.data
-
-        if (!data) {
-            res.status(500).send('No message data')
-            return
-        }
-
         const dataJson = Buffer.from(data, 'base64').toString()
         const { emailAddress: userId, historyId: startHistoryId } = JSON.parse(dataJson)
         const history = await gmail.users.history.list({
             userId,
             startHistoryId,
             //labelId: NOTION_GMAIL_LABEL_ID,
+            //maxResults: 1,
             historyTypes: [
                 'messageAdded',
                 'messageDeleted',
@@ -23,20 +24,21 @@ module.exports.inspectEmailPub = async (req, res, next) => {
                 'labelRemoved'
             ]
         })
-        
-        // const id = ''
-        // const messageRes = await gmail.users.messages.get({ userId, id })
-        // const { headers } = messageRes.data.payload
-        // const subject = headers.find(h => h.name === 'Subject')?.value?.slice(0,96)
-        // const from = headers.find(h => h.name === 'From')?.value
-        const datetime = Intl.DateTimeFormat('en-US', { dateStyle: 'short', timeStyle: 'long' }).format()
 
-        //await articlePubsubLogs.insertOne({ id, datetime, from, subject })
-        await withConnectAndClose('prod', 'article-pubsub-logs', async (coll) => {
-            await coll.insertOne({ ...history.data, datetime })
-        })
-    } catch (err) {
-        console.log(err)
+        if (history.data.history) {
+            await logsWithHistory.insertOne({ date, time, ...history.data })
+        }
+        await logs.insertOne({ date, time, ...history.data })
+        await close()
+    } catch (error) {
+        try {
+            await withConnectAndClose('prod', 'article-pubsub-failures', async (col) => {
+                await col.insertOne({ date, time, error })
+            })
+        } catch (err) {
+            console.log('Failure while logging pubsub inspection error: ', err)
+            console.log('Original error: ', error)
+        }
     }
 
     next()
