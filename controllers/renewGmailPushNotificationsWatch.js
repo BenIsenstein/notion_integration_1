@@ -1,5 +1,6 @@
 const { gmail, tasksClient } = require('../repositories')
 const { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } = require('../constants')
+const { insertOne, insertError } = require('../services')
 
 /* Function to be used later with multiple clients using the application */
 
@@ -77,10 +78,12 @@ module.exports.renewGmailPushNotificationsWatch = async (req, res) => {
 
     console.log('Next scheduled push notification watch:')
     console.log(taskRes[0])
+    await insertOne('gmail-watch-renewals')
     res.sendStatus(204)
   }
   catch (err) {
     console.log(err)
+    await insertError('gmail-watch-renewal-failures', err)
     res.sendStatus(500)
   }
 }
