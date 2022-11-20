@@ -1,7 +1,6 @@
-node_modules/*
 node_modules
-credentials/*
-credentials
+dist
+src/credentials
+src/test.js
 .env
 .DS_Store
-test.js
