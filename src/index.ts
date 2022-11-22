@@ -1,6 +1,7 @@
 require("dotenv").config()
 require('./helpers').initGoogleApi()
 require('./cron').startJobs()
+import { existsSync } from 'fs'
 import createError from 'http-errors'
 import express from 'express'
 import cookieParser from 'cookie-parser'
@@ -14,6 +15,15 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+
+// Healthcheck route
+app.get('/health', (req, res) => {
+  if (existsSync(`${__dirname}/credentials`)) {
+    res.sendStatus(200)
+  } else {
+    res.sendStatus(418)
+  }
+})
 
 // Routes
 app.use('/api', apiRouter)

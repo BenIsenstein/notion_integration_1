@@ -1,8 +1,10 @@
 {
   "name": "notion_integration_1",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
+  "engines": {
+    "node": "16"
+  },
+  "description": "Programatically managing contacts, finances, newsletters and more in Notion.",
   "scripts": {
     "build": "rm -rf dist && tsc",
     "predev": "rm -rf src/credentials && mkdir src/credentials",
@@ -13,7 +15,7 @@
     "renew-watch": "node src/scripts/renewWatchManual.js",
     "migrate-contacts": "node src/scripts/migrateContactsManual.js"
   },
-  "author": "",
+  "author": "Ben Isenstein",
   "license": "ISC",
   "dependencies": {
     "@google-cloud/storage": "^6.5.0",
@@ -40,6 +42,7 @@
     "@types/node": "^18.11.9",
     "@types/node-cron": "^3.0.6",
     "@types/quoted-printable": "^1.0.0",
+    "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.9.3"
   }

@@ -10,8 +10,8 @@ export const inspectEmailPub = async (req, res, next) => {
         const history = await gmail.users.history.list({
             userId,
             startHistoryId,
-            //labelId: NOTION_GMAIL_LABEL_ID,
-            //maxResults: 1,
+            labelId: NOTION_GMAIL_LABEL_ID,
+            maxResults: 1,
             historyTypes: [
                 'messageAdded',
                 'messageDeleted',

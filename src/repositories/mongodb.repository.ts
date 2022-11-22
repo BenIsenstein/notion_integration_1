@@ -1,10 +1,10 @@
-import { MongoClient } from "mongodb"
+import { Collection, MongoClient } from "mongodb"
 const mongoClient = new MongoClient(process.env.MONGO_CONNECTION_STRING)
 
 export const withConnectAndClose = async (
-    db,
-    collection,
-    callback
+    db: string,
+    collection: string,
+    callback: (col: Collection) => Promise<unknown>
 ) => {
     await mongoClient.connect()
     await callback(mongoClient.db(db).collection(collection))

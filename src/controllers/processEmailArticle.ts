@@ -2,6 +2,7 @@ import { Client, isFullPage } from "@notionhq/client"
 import { storage, gmail, withConnectAndClose } from '../repositories'
 import { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../helpers'
 import { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } from '../values'
+import { insertOne } from "../services"
 
 const notion = new Client({
   auth: process.env.NOTION_API_KEY
@@ -199,6 +200,7 @@ export const processEmailArticle = async (req, res) => {
     const createPageRes = await createNotionArticlePage(info)
   
     if (createPageRes) {
+      await insertOne('processed-emails', { messageId: info.messageid })
       await gmail.users.messages.trash({
         userId: emailAddress,
         id: info.messageid

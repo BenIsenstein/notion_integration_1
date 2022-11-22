@@ -1,4 +1,9 @@
 {
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  },
+  "include": ["src"],
   "compilerOptions": {
     "target": "ES2015",
     "module": "CommonJS",
