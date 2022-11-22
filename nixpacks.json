@@ -1,7 +1,0 @@
-{
-    "phases": {
-        "setup": {
-            "nixPkgs": ["...","python38","gnumake","gcc"]
-        }
-    }
-}
