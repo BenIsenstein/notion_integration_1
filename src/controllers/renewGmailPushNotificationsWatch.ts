@@ -70,10 +70,7 @@ export const renewGmailPushNotificationsWatch = async (req, res) => {
     const watchRes = await watch()
     const dateForReset = (+watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS) / 1000
 
-    const taskRes = await createTask(dateForReset)
-
-    console.log('Next scheduled push notification watch:')
-    console.log(taskRes[0])
+    await createTask(dateForReset)
     await insertOne('gmail-watch-renewals')
     res.sendStatus(204)
   }

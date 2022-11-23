@@ -11,7 +11,7 @@ export const inspectEmailPub = async (req, res, next) => {
             userId,
             startHistoryId,
             labelId: NOTION_GMAIL_LABEL_ID,
-            maxResults: 1,
+            //maxResults: 1,
             historyTypes: [
                 'messageAdded',
                 'messageDeleted',

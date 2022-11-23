@@ -1,7 +1,7 @@
 node_modules
 dist
 src/credentials
-src/test.js
+src/test.*
 .env
 .DS_Store
 experiments

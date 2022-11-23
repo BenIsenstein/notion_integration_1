@@ -4,6 +4,7 @@
     "files": true
   },
   "include": ["src"],
+  "exclude": ["src/test.*"],
   "compilerOptions": {
     "target": "ES2015",
     "module": "CommonJS",
