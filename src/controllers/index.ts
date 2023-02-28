@@ -1,3 +1,6 @@
 export * from './contactsAddWhatsappUrl'
 export * from './processEmailArticle'
 export * from './renewGmailPushNotificationsWatch'
+export * from './redirectUserToGoogleOauth'
+export * from './authedUserTokensFromGoogleOauthResponseCode'
+export * from './syncContactsBetweenNotionAndGoogle'

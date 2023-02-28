@@ -1,12 +1,15 @@
-import { Client, isFullPage } from "@notionhq/client"
-import { storage, gmail, withConnectAndClose } from '../repositories'
+import { isFullPage } from "@notionhq/client"
+import { storage, gmail, withConnectAndClose, notion } from '../repositories'
 import { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../helpers'
 import { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } from '../values'
 import { insertOne } from "../services"
 
-const notion = new Client({
-  auth: process.env.NOTION_API_KEY
-})
+interface ITimestampedError {
+  date: string
+  time: string
+  timestamp: number
+  error: string
+}
 
 // Get a message
 const getEmail = async (email) => {
@@ -212,9 +215,13 @@ export const processEmailArticle = async (req, res) => {
   
     throw new Error('Unsuccessful Notion page creation')
   } catch (error) {
-    await withConnectAndClose('prod', 'article-pubsub-failures', async (col) => {
-      await col.insertOne({ ...makeDateAndTime(), error: error.toString() })
-    })
+    await withConnectAndClose<ITimestampedError, void>(
+      'prod',
+      'article-pubsub-failures',
+      async (col) => {
+        await col.insertOne({ ...makeDateAndTime(), error: error.toString() })
+      }
+    )
     console.log(error)
     res.status(500).send(error)
   }
