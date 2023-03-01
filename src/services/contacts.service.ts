@@ -111,6 +111,8 @@ export const updateGoogleContact = async (
     GaxiosResponse<people_v1.Schema$Person>
 > => {
     const { displayName, phoneNumber, email, googleId, googleEtag } = contact
+    const [ givenName, ...rest ] = displayName.split(' ')
+    const familyName = rest?.join(' ') || null
     
     return await people.people.updateContact({
         resourceName: googleId,
@@ -119,7 +121,8 @@ export const updateGoogleContact = async (
           etag: googleEtag,
           names: [
             {
-              displayName,
+              givenName,
+              familyName,
             },
           ],
           emailAddresses: [
