@@ -16,7 +16,8 @@ import {
   updateGoogleContact,
   updateNotionContact,
   refreshGoogleContactsEtags,
-  insertError
+  insertError,
+  sendAuthTokenResetEmail
 } from '../services'
 import {
   CONTACT_SYNC_ERROR_CAUSES,
@@ -180,11 +181,13 @@ const syncContactsController = async () => {
       }
 
       await close()
-      throw new Error({ ...error })
+      console.log(error)
+      throw new Error(error.message)
     }
     catch (error) {
       await close()
-      throw new Error({ ...error })
+      console.log(error)
+      throw new Error(error.message)
     }
   }
 }
@@ -194,20 +197,26 @@ export const syncContactsBetweenNotionAndGoogle = async () => {
     await syncContactsController()
   }
   catch (error) {
+    const { message, stack } = error
     const causeOfError = determineCauseOfError(error)
 
-    console.error(error)
+    console.log({ message, stack })
     await insertError('contacts-sync-errors', error)
 
     if (causeOfError === CONTACT_SYNC_ERROR_CAUSES.GOOGLE_CONTACTS_ETAGS_NOT_REFRESHED) {
       await refreshGoogleContactsEtags()
     }
 
+    if (causeOfError === CONTACT_SYNC_ERROR_CAUSES.GOOGLE_AUTH_TOKEN_EXPIRED) {
+      await sendAuthTokenResetEmail()
+    }
+
     try {
       await syncContactsController()
     }
     catch (err) {
-      console.error(err)
+      const { message, stack } = err
+      console.log({ message, stack })
       await insertError('contacts-sync-errors-after-fix-attempt', error)
     }
   }

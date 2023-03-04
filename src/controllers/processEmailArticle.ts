@@ -2,7 +2,7 @@ import { isFullPage } from "@notionhq/client"
 import { storage, gmail, withConnectAndClose, notion } from '../repositories'
 import { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../helpers'
 import { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } from '../values'
-import { insertOne } from "../services"
+import { insertOne, sendAuthTokenResetEmail } from "../services"
 
 interface ITimestampedError {
   date: string
@@ -222,6 +222,9 @@ export const processEmailArticle = async (req, res) => {
         await col.insertOne({ ...makeDateAndTime(), error: error.toString() })
       }
     )
+    if (error.message.includes("reading 'access_token'")) {
+      await sendAuthTokenResetEmail()
+    }
     console.log(error)
     res.status(500).send(error)
   }

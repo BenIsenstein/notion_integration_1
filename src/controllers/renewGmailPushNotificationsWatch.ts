@@ -40,7 +40,7 @@ const watch = async (
 }
 
 const createTask = async (seconds) => {
-  const url = process.env.REFRESH_GMAIL_PUSH_NOTIFICATION_WATCH_URL
+  const url = `${process.env.WEB_API_URL}/gmail-inbox-subscriptions`
   const location = 'us-central1'
   const queue = 'refresh-gmail-push-notification-watch-queue'
   const parent = tasksClient.queuePath(process.env.GCP_PROJECT, location, queue)

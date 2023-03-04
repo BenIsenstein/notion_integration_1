@@ -1,5 +1,5 @@
 import { google } from 'googleapis'
-import { Storage as StorageClient} from '@google-cloud/storage'
+import { Storage as StorageClient } from '@google-cloud/storage'
 import { CloudTasksClient } from '@google-cloud/tasks'
 
 export { google }
@@ -7,7 +7,7 @@ export { google }
 export const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_CALLBACK_URL,
+    `${process.env.WEB_API_URL}/auth-tokens/google`,
 )
 
 export const people = google.people('v1')

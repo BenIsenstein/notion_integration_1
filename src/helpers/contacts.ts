@@ -5,6 +5,9 @@ export const isContactEmpty = (contact: IContactUpdatePayload["contact"]) => {
 }
 
 export const determineCauseOfError = (error: Error): CONTACT_SYNC_ERROR_CAUSES => {
+    if (error.message.includes("reading 'access_token'")) {
+        return CONTACT_SYNC_ERROR_CAUSES.GOOGLE_AUTH_TOKEN_EXPIRED
+    }
     return CONTACT_SYNC_ERROR_CAUSES.UNKNOWN
 }
 

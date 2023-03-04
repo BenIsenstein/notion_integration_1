@@ -44,4 +44,5 @@ export interface INotionContactResponse {
 export enum CONTACT_SYNC_ERROR_CAUSES {
     UNKNOWN,
     GOOGLE_CONTACTS_ETAGS_NOT_REFRESHED,
+    GOOGLE_AUTH_TOKEN_EXPIRED
 }

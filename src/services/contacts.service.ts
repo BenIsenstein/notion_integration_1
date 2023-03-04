@@ -9,7 +9,7 @@ import {
     INotionContactResponse,
     IContactUpdatePayload,
     IMongoDbContactInfo,
-} from '../types/contacts'
+} from '../types'
 import { withHandleNotionApiRateLimit } from "../helpers"
 
 export const getGoogleContacts = async (): Promise<IGoogleContactInfo[]> => {
