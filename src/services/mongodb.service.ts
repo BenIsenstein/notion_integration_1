@@ -34,7 +34,7 @@ export const getGoogleTokens = async (
 export const setGoogleTokens = async (
     document: IGoogleTokensDocument
 ): Promise<void> => {
-    const { userId, tokens } = document
+    const { userId } = document
 
     await withConnectAndClose<IGoogleTokensDocument, void>(
         'prod',
@@ -43,7 +43,7 @@ export const setGoogleTokens = async (
             const existingTokens = (await col.findOne({ userId }))?.tokens
 
             if (existingTokens) {
-                await col.updateOne({ userId }, { $set: tokens })
+                await col.updateOne({ userId }, { $set: document })
                 return
             }
 
