@@ -1,6 +1,6 @@
-import { oauth2Client } from '../repositories'
-import { setGoogleTokens } from '../services'
-import { USER_ID } from '../values'
+import { oauth2Client } from '../../repositories'
+import { setGoogleTokens } from '../../services'
+import { USER_ID } from '../../values'
 
 export const authedUserTokensFromGoogleOauthResponseCode = async (req, res) => {
     const { code } = req.query

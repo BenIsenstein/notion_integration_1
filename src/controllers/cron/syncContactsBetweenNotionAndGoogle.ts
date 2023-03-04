@@ -1,4 +1,4 @@
-import { notion, people, openCollection } from '../repositories'
+import { notion, people, openCollection } from '../../repositories'
 import {
   determineCauseOfError,
   hasContactInfoChanged,
@@ -7,7 +7,7 @@ import {
   wasSameUpdateMadeInGoogle,
   wasSameUpdateMadeInNotion,
   withHandleNotionApiRateLimit
-} from '../helpers'
+} from '../../helpers'
 import {
   getGoogleContacts,
   getNotionContacts,
@@ -18,12 +18,12 @@ import {
   refreshGoogleContactsEtags,
   insertError,
   sendAuthTokenResetEmail
-} from '../services'
+} from '../../services'
 import {
   CONTACT_SYNC_ERROR_CAUSES,
   IContactUpdatePayload,
   IMongoDbContactInfo
-} from '../types/contacts'
+} from '../../types'
 
 const syncContactsController = async () => {
   const { collection: contacts, close } = await openCollection<IMongoDbContactInfo>('prod', 'contacts')  

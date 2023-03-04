@@ -1,7 +1,7 @@
 import { isFullPage } from "@notionhq/client"
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints"
-import { withHandleNotionApiRateLimit } from "../helpers"
-import { notion } from "../repositories"
+import { withHandleNotionApiRateLimit } from "../../helpers"
+import { notion } from "../../repositories"
 
 export const contactsAddWhatsappUrl = async (req, res) => {
     const query = withHandleNotionApiRateLimit(notion.databases.query)

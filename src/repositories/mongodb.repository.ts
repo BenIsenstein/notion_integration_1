@@ -1,5 +1,11 @@
 import { Collection, MongoClient } from "mongodb"
-const mongoClient = new MongoClient(process.env.MONGO_URL)
+
+const mongoClient = new MongoClient(process.env.MONGO_URL, {
+    maxPoolSize: 1000,
+    maxConnecting: 1000,
+    retryReads: true,
+    retryWrites: true
+})
 
 export const withConnectAndClose = async <
     TDocument,

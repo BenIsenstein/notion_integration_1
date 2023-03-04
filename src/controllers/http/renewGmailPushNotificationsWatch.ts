@@ -1,6 +1,6 @@
-import { gmail, tasksClient } from '../repositories'
-import { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } from '../values'
-import { insertOne, insertError } from '../services'
+import { gmail, tasksClient } from '../../repositories'
+import { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } from '../../values'
+import { insertOne, insertError } from '../../services'
 
 /* Function to be used later with multiple clients using the application */
 

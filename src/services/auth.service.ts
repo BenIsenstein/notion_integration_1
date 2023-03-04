@@ -1,33 +1,19 @@
-import nodemailer from 'nodemailer'
-import { oauth2Client } from '../repositories'
-import { USER_ID } from '../values'
+import { oauth2Client, transporter } from '../repositories'
+import { GOOGLE_OAUTH_DEFAULT_SCOPES, USER_ID } from '../values'
 
-export const createConsentPageUrl = () => {
-    const scopes = [
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/contacts",
-        "https://mail.google.com/",
-        "openid",
-    ]
-
+export const createConsentPageUrl = (
+    scopes: string[] = GOOGLE_OAUTH_DEFAULT_SCOPES
+) => {
     return oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: scopes,
+        include_granted_scopes: true,
     })
 }
 
 export const sendAuthTokenResetEmail = async () => {
     const consentPageUrl = createConsentPageUrl()
-    const transporter = nodemailer.createTransport({
-        requireTLS: true,
-        host: process.env.AWS_SMTP_HOST,
-        port: 587,
-        auth: {
-            user: process.env.AWS_SMTP_USER,
-            pass: process.env.AWS_SMTP_PASS,
-        },
-    })
+
     await transporter.sendMail({
         from: USER_ID,
         to: USER_ID,

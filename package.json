@@ -11,9 +11,9 @@
     "dev": "ts-node-dev --respawn -- src/index.ts",
     "prestart": "rm -rf dist/credentials && mkdir dist/credentials",
     "start": "node dist/index.js",
-    "start-railway-watch": "node src/scripts/startRailwayWatch.js",
-    "renew-watch": "node src/scripts/renewWatchManual.js",
-    "migrate-contacts": "node src/scripts/migrateContactsManual.js"
+    "start-railway-watch": "ts-node src/scripts/startRailwayWatch.js",
+    "renew-watch": "ts-node src/scripts/renewWatchManual.js",
+    "migrate-contacts": "ts-node src/scripts/migrateContactsManual.js"
   },
   "author": "Ben Isenstein",
   "license": "ISC",

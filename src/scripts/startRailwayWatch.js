@@ -1,5 +1,5 @@
 require("dotenv").config()
-require("../helpers").initGoogleApi()
+const { initGoogleApi } = require('../helpers/initGoogleApi')
 const { renewGmailPushNotificationsWatch } = require('../controllers')
 
 const res = { 
@@ -8,4 +8,7 @@ const res = {
     }
 }
 
-renewGmailPushNotificationsWatch(null, res)
+;(async () => {
+    await initGoogleApi()
+    await renewGmailPushNotificationsWatch({}, res)
+})()

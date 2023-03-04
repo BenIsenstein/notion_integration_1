@@ -83,12 +83,15 @@ export const createGoogleContact = async (
     GaxiosResponse<people_v1.Schema$Person>
 > => {
     const { displayName, phoneNumber, email } = contact
+    const [ givenName, ...rest ] = displayName.split(' ')
+    const familyName = rest?.join(' ') || null
 
     return await people.people.createContact({
         requestBody: {
           names: [
             {
-              displayName,
+              givenName,
+              familyName,
             },
           ],
           emailAddresses: [

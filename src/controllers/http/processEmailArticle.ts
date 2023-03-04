@@ -1,8 +1,8 @@
 import { isFullPage } from "@notionhq/client"
-import { storage, gmail, withConnectAndClose, notion } from '../repositories'
-import { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../helpers'
-import { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } from '../values'
-import { insertOne, sendAuthTokenResetEmail } from "../services"
+import { storage, gmail, withConnectAndClose, notion } from '../../repositories'
+import { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../../helpers'
+import { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } from '../../values'
+import { insertOne, sendAuthTokenResetEmail } from "../../services"
 
 interface ITimestampedError {
   date: string

@@ -7,9 +7,9 @@ import logger from 'morgan'
 import apiRouter from './routes/apiRouter'
 import { startJobs } from './cron'
 
-const app = express()
-
 require('./helpers').initGoogleApi().then(() => {
+  const app = express()
+  
   app.use(logger('dev'))
   app.use(express.json())
   app.use(express.urlencoded({ extended: false }))
