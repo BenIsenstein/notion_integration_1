@@ -6,7 +6,7 @@ export const htmlToPdfBuffer = async (html) => {
       args: ['--no-sandbox']
     })
     const page = await browser.newPage()
-    await page.setDefaultNavigationTimeout(0)
+    page.setDefaultNavigationTimeout(0)
     await page.setContent(html)
     const content = await page.pdf({ format: 'a4' })
     await browser.close()

@@ -1,4 +1,4 @@
-import { gmail, tasksClient } from '../../repositories'
+import { gmail, tasks } from '../../repositories'
 import { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } from '../../values'
 import { insertOne, insertError } from '../../services'
 
@@ -43,7 +43,7 @@ const createTask = async (seconds) => {
   const url = `${process.env.WEB_API_URL}/gmail-inbox-subscriptions`
   const location = 'us-central1'
   const queue = 'refresh-gmail-push-notification-watch-queue'
-  const parent = tasksClient.queuePath(process.env.GCP_PROJECT, location, queue)
+  const parent = tasks.queuePath(process.env.GCP_PROJECT, location, queue)
 
   const task = {
     httpRequest: {
@@ -59,7 +59,7 @@ const createTask = async (seconds) => {
   }
 
   const request = { parent, task }
-  return await tasksClient.createTask(request)
+  return await tasks.createTask(request)
 }
 
 export const renewGmailPushNotificationsWatch = async (req, res) => {

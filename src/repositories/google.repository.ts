@@ -18,6 +18,6 @@ export const storage = new StorageClient({
     keyFilename: `${__dirname}/../credentials/articles-service-account-credentials.json`
 })
 
-export const tasksClient = new CloudTasksClient({
+export const tasks = new CloudTasksClient({
     keyFilename: `${__dirname}/../credentials/cloud-tasks-client-account-credentials.json`
 })
