@@ -5,8 +5,7 @@ import {
   isContactEmpty,
   mergeIdenticalContactUpdate,
   wasSameUpdateMadeInGoogle,
-  wasSameUpdateMadeInNotion,
-  withHandleNotionApiRateLimit
+  wasSameUpdateMadeInNotion
 } from '../../helpers'
 import {
   getGoogleContacts,
@@ -27,7 +26,6 @@ import {
 
 const syncContactsController = async () => {
   const { collection: contacts, close } = await openCollection<IMongoDbContactInfo>('prod', 'contacts')  
-  const deleteNotionPage = withHandleNotionApiRateLimit(notion.blocks.delete)
   const successfulUpdates: Map<IContactUpdatePayload, null> = new Map()
   const googleIdToEtagRecord: Record<string, string> = {}
 
@@ -138,7 +136,7 @@ const syncContactsController = async () => {
         await updateNotionContact(googleUpdate.contact)
       }
       else if (googleUpdate.action === 'deleteContact') {
-        await deleteNotionPage({ block_id: googleUpdate.contact.notionId })
+        await notion.deleteBlock({ block_id: googleUpdate.contact.notionId })
       }
 
       successfulUpdates.set(googleUpdate, null)

@@ -1,16 +1,13 @@
 import { isFullPage } from "@notionhq/client"
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints"
-import { withHandleNotionApiRateLimit } from "../../helpers"
 import { notion } from "../../repositories"
 
 export const contactsAddWhatsappUrl = async (req, res) => {
-    const query = withHandleNotionApiRateLimit(notion.databases.query)
-    const update = withHandleNotionApiRateLimit(notion.pages.update)
     const results: PageObjectResponse[] = []
     let start_cursor: string = undefined
   
     while (true) {
-      const res = await query({
+      const res = await notion.queryDb({
         database_id: process.env.CONTACTS_DB_ID,
         start_cursor,
         page_size: 100,
@@ -48,7 +45,7 @@ export const contactsAddWhatsappUrl = async (req, res) => {
             if (properties.Phone.type !== 'phone_number') continue
             const phone = properties.Phone.phone_number.replace(/\+|\-|\s/g, '')
 
-            await update({
+            await notion.updatePage({
                 page_id: id,
                 properties: {
                     "WhatsApp Msg": `https://api.whatsapp.com/send?phone=${phone}`

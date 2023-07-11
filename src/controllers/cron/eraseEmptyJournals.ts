@@ -1,17 +1,13 @@
 import { isFullPage } from '@notionhq/client'
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { notion } from '../../repositories'
-import { withHandleNotionApiRateLimit } from "../../helpers"
 
 export const eraseEmptyJournals = async () => {
-    const query = withHandleNotionApiRateLimit(notion.databases.query)
-    const del = withHandleNotionApiRateLimit(notion.blocks.delete)
-
     const results: PageObjectResponse[] = []
     let start_cursor: string = undefined
   
     while (true) {
-      const res = await query({
+      const res = await notion.queryDb({
         database_id: process.env.NOTEBOOK_DB_ID,
         start_cursor,
         page_size: 100,
@@ -48,7 +44,7 @@ export const eraseEmptyJournals = async () => {
 
     for (const page of results) {
         try {
-            await del({ block_id: page.id })
+            await notion.deleteBlock({ block_id: page.id })
         } catch (err) {
             console.log(err)
         }

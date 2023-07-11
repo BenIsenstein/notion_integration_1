@@ -108,7 +108,7 @@ const createNotionArticlePage = async ({ from, subject, content, pdfUrl, htmlUrl
 
     const [year, month, day] = getStorageDateString().split('_')
     
-    const query = await notion.databases.query({
+    const query = await notion.queryDb({
       database_id: process.env.ARTICLES_DB_ID,
       filter: {
         and: [
@@ -139,7 +139,7 @@ const createNotionArticlePage = async ({ from, subject, content, pdfUrl, htmlUrl
       }
     }
 
-    return await notion.pages.create({
+    return await notion.createPage({
         parent: {
             type: 'database_id',
             database_id: process.env.ARTICLES_DB_ID

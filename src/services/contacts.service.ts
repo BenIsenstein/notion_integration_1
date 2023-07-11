@@ -10,7 +10,6 @@ import {
     IContactUpdatePayload,
     IMongoDbContactInfo,
 } from '../types'
-import { withHandleNotionApiRateLimit } from "../helpers"
 
 export const getGoogleContacts = async (): Promise<IGoogleContactInfo[]> => {
     const results: IGoogleContactInfo[] = []
@@ -46,12 +45,11 @@ export const getGoogleContacts = async (): Promise<IGoogleContactInfo[]> => {
 }
 
 export const getNotionContacts = async (): Promise<INotionContactInfo[]> => {
-    const query = withHandleNotionApiRateLimit(notion.databases.query)
     const results: INotionContactInfo[] = []
     let start_cursor: string = undefined
   
     while (true) {
-      const res = await query({
+      const res = await notion.queryDb({
         database_id: process.env.CONTACTS_DB_ID,
         start_cursor,
         page_size: 100,
@@ -145,10 +143,9 @@ export const updateGoogleContact = async (
 export const createNotionContact = async (
     contact: IContactUpdatePayload["contact"]
 ): Promise<CreatePageResponse> => {
-    const create = withHandleNotionApiRateLimit(notion.pages.create)
     const { displayName, phoneNumber, email } = contact
 
-    return await create({
+    return await notion.createPage({
         parent: {
           database_id: process.env.CONTACTS_DB_ID,
         },
@@ -175,10 +172,9 @@ export const createNotionContact = async (
 export const updateNotionContact = async (
     contact: IContactUpdatePayload["contact"]
 ): Promise<CreatePageResponse> => {
-    const update = withHandleNotionApiRateLimit(notion.pages.update)
     const { displayName, phoneNumber, email, notionId } = contact
 
-    return await update({
+    return await notion.updatePage({
         page_id: notionId,
         properties: {
           Name: {
