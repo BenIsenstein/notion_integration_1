@@ -1,3 +1,3 @@
 import { eraseEmptyJournals } from "../controllers";
 
-export default ['0 0 * * *', eraseEmptyJournals, 'eraseEmptyJournals']
+export default ['0 8 * * *', eraseEmptyJournals, 'eraseEmptyJournals']

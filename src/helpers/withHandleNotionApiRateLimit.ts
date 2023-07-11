@@ -7,7 +7,7 @@ const handleNotionApiRateLimit = async (error: any) => {
         error.code === APIErrorCode.RateLimited ||
         error.code === ClientErrorCode.RequestTimeout
     ) {
-        const retryAfter = error.response.headers['retry-after'] || 1
+        const retryAfter = error.response?.headers?.['retry-after'] || 1
         console.log(`Notion API rate limit exceeded, retrying after ${retryAfter} seconds`)
         await delay(retryAfter * 1000)
     }
