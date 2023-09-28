@@ -4,7 +4,8 @@ const mongoClient = new MongoClient(process.env.MONGO_URL, {
     maxPoolSize: 1000,
     maxConnecting: 1000,
     retryReads: true,
-    retryWrites: true
+    retryWrites: true,
+    connectTimeoutMS: 10000
 })
 
 export const withConnectAndClose = async <
