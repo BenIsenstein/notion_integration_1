@@ -1,9 +1,9 @@
 // for testing only:
 
-const { resolve }  = require('path')
-require("dotenv").config({
-    path: resolve(process.cwd(), '.env.prod')
-})
+// const { resolve }  = require('path')
+// require("dotenv").config({
+//     path: resolve(process.cwd(), '.env.prod')
+// })
 
 import {
     checkForNotionVideoPage,
@@ -73,7 +73,7 @@ export const updateYoutubeVideosController = async () => {
 
 // for testing only
 
-;(async () => {
-    await require('../../helpers').initGoogleApi()
-    await updateYoutubeVideosController()
-})()
+// ;(async () => {
+//     await require('../../helpers').initGoogleApi()
+//     await updateYoutubeVideosController()
+// })()
