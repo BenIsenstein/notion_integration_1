@@ -14,6 +14,8 @@ export const people = google.people('v1')
 
 export const gmail = google.gmail('v1')
 
+export const youtube = google.youtube('v3')
+
 export const storage = new StorageClient({
     keyFilename: `${__dirname}/../credentials/articles-service-account-credentials.json`
 })

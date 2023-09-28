@@ -1,7 +1,6 @@
 import { people_v1 } from "googleapis"
 import { GaxiosResponse } from "gaxios"
 import { CreatePageResponse } from "@notionhq/client/build/src/api-endpoints"
-import { isFullPage } from '@notionhq/client'
 import { notion, openCollection, people } from "../repositories"
 import {
     IGoogleContactInfo,
@@ -10,67 +9,54 @@ import {
     IContactUpdatePayload,
     IMongoDbContactInfo,
 } from '../types'
+import { useGooglePagination, useNotionPagination } from "../helpers"
 
 export const getGoogleContacts = async (): Promise<IGoogleContactInfo[]> => {
     const results: IGoogleContactInfo[] = []
-    let pageToken: string = ''
-  
-    while (true) {
-      const res = await people.people.connections.list({
+
+    await useGooglePagination(
+      (pageToken) => people.people.connections.list({
         resourceName: 'people/me',
         personFields: 'names,emailAddresses,phoneNumbers',
         pageSize: 1000,
         pageToken,
-      })
-      const contactsPage: IGoogleContactInfo[] = res.data.connections.map((contact) => ({
-        displayName: contact?.names?.[0]?.displayName,
-        phoneNumber: contact?.phoneNumbers?.[0]?.canonicalForm || contact?.phoneNumbers?.[0]?.value,
-        email: contact?.emailAddresses?.[0]?.value,
-        googleId: contact?.resourceName,
-        googleEtag: contact?.etag,
-      }))
-      const nextPageToken = res.data.nextPageToken
-  
-      results.push(...contactsPage)
-  
-      if (nextPageToken) {
-        pageToken = nextPageToken
+      }),
+      async (res) => {
+        const contactsPage: IGoogleContactInfo[] = res.data.connections.map((contact) => ({
+          displayName: contact?.names?.[0]?.displayName,
+          phoneNumber: contact?.phoneNumbers?.[0]?.canonicalForm || contact?.phoneNumbers?.[0]?.value,
+          email: contact?.emailAddresses?.[0]?.value,
+          googleId: contact?.resourceName,
+          googleEtag: contact?.etag,
+        }))
+
+        results.push(...contactsPage)
       }
-      else {
-        break
-      }
-    }
+    )
   
     return results
 }
 
 export const getNotionContacts = async (): Promise<INotionContactInfo[]> => {
     const results: INotionContactInfo[] = []
-    let start_cursor: string = undefined
-  
-    while (true) {
-      const res = await notion.queryDb({
+    
+    await useNotionPagination(
+      {
         database_id: process.env.CONTACTS_DB_ID,
-        start_cursor,
         page_size: 100,
-      })
-      const contactsPage: INotionContactInfo[] = 
-        (res.results.filter(isFullPage) as unknown as INotionContactResponse[]).map((contact) => ({
-          displayName: contact?.properties?.Name?.title?.[0]?.plain_text,
-          phoneNumber: contact?.properties?.Phone?.phone_number,
-          email: contact?.properties?.Email?.email,
-          notionId: contact?.id,
-        }))
-  
-      results.push(...contactsPage)
-      
-      if (res.has_more) {
-        start_cursor = res.next_cursor
+      },
+      async (contactsResults) => {
+        const contactsPage: INotionContactInfo[] = 
+          (contactsResults as unknown as INotionContactResponse[]).map((contact) => ({
+            displayName: contact?.properties?.Name?.title?.[0]?.plain_text,
+            phoneNumber: contact?.properties?.Phone?.phone_number,
+            email: contact?.properties?.Email?.email,
+            notionId: contact?.id,
+          }))
+        
+        results.push(...contactsPage)
       }
-      else {
-        break
-      }
-    }
+    )
   
     return results
 }

@@ -13,7 +13,8 @@
     "start": "node dist/index.js",
     "start-railway-watch": "ts-node src/scripts/startRailwayWatch.js",
     "renew-watch": "ts-node src/scripts/renewWatchManual.js",
-    "migrate-contacts": "ts-node src/scripts/migrateContactsManual.js"
+    "migrate-contacts": "ts-node src/scripts/migrateContactsManual.js",
+    "linecount": "node src/scripts/countLinesInRoot.cjs"
   },
   "author": "Ben Isenstein",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "@google-cloud/storage": "^6.5.0",
     "@google-cloud/tasks": "^3.0.2",
     "@notionhq/client": "^2.2.0",
+    "axios": "^1.4.0",
     "cookie-parser": "^1.4.6",
     "delay": "^5.0.0",
     "dotenv": "^16.0.3",
