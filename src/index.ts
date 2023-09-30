@@ -38,7 +38,7 @@ require('./helpers').initGoogleApi().then(() => {
     res.send('error')
   })
 
-  const port = process.env.PORT || 3000
-  app.listen(port, () => console.log('Server listening on port ' + port))
+  const port = process.env.PORT ? Number(process.env.PORT) : 3000
+  app.listen(port, '::', () => console.log('Server listening on port ' + port))
   startJobs()
 })
