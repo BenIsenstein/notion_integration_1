@@ -3,6 +3,7 @@ import { storage, gmail, withConnectAndClose, notion } from '../../repositories'
 import { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../../helpers'
 import { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } from '../../values'
 import { insertOne, sendAuthTokenResetEmail } from "../../services"
+import axios from 'axios'
 
 interface ITimestampedError {
   date: string
@@ -92,10 +93,16 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
   await pdfFile.save(content)
   await htmlFile.save(mailHtml)
 
+  try {
+    const testImageServiceRes = await axios.post(`${process.env.IMAGE_SERVICE_URL}/upload`, { filePath, html: mailHtml })
+    console.log('image service response: ', testImageServiceRes.data)
+  } catch (e) {
+    console.log('Error using the image service: ', e)
+  }
+
   return {
     from,
     subject,
-    content,
     messageid,
     pdfUrl: pdfFile.publicUrl(),
     htmlUrl: htmlFile.publicUrl()
@@ -103,8 +110,8 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
 }
 
 // save to notion DB
-const createNotionArticlePage = async ({ from, subject, content, pdfUrl, htmlUrl }) => {
-    if ([from, subject, content, pdfUrl, htmlUrl].some(el => !el)) return false
+const createNotionArticlePage = async ({ from, subject, pdfUrl, htmlUrl }) => {
+    if ([from, subject, pdfUrl, htmlUrl].some(el => !el)) return false
 
     const [year, month, day] = getStorageDateString().split('_')
     
