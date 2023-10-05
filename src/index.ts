@@ -1,5 +1,4 @@
 require("dotenv").config()
-import { existsSync } from 'fs'
 import createError from 'http-errors'
 import express from 'express'
 import cookieParser from 'cookie-parser'
@@ -16,11 +15,7 @@ require('./helpers').initGoogleApi().then(() => {
   app.use(cookieParser())
 
   app.get('/health', (req, res) => {
-    if (existsSync(`${__dirname}/credentials`)) {
-      res.sendStatus(200)
-    } else {
-      res.sendStatus(418)
-    }
+    res.sendStatus(200)
   })
   
   app.use('/api', apiRouter)

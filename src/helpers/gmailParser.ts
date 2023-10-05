@@ -26,7 +26,7 @@
 */
 
 import quotedPrintable from "quoted-printable"
-import { Iconv } from "iconv"
+import iconv from 'iconv-lite'
 const FROM_REGEX = /\n(From):\s([^\n\r]+?)\r?\n/i
 const DATE_REGEX = /\n(Date):\s([^\n\r]+?)\r?\n/i
 const TO_REGEX = /\n(To):\s([^\n\r]+?)\r?\n/i
@@ -286,8 +286,7 @@ function decodeByEncoding(raw, encodingOption, charset?: string) {
         } else if (charset.match(/(KSC5601|KSC5636)/i)) {
             charset = "EUC-KR";
         }
-        let iconv = new Iconv(charset, "UTF-8//TRANSLIT//IGNORE");
-        buffer = iconv.convert(buffer);
+        buffer = iconv.decode(buffer, charset)
     }
     return buffer.toString();
 }

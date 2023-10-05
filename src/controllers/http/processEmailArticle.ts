@@ -1,9 +1,9 @@
-import { isFullPage } from "@notionhq/client"
-import { storage, gmail, withConnectAndClose, notion } from '../../repositories'
-import { parseGmail, htmlToPdfBuffer, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../../helpers'
-import { ARTICLES_BUCKET_NAME, NOTION_GMAIL_LABEL_ID } from '../../values'
+import { isFullPageOrDatabase } from "@notionhq/client"
+import { gmail, withConnectAndClose, notion } from '../../repositories'
+import { parseGmail, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../../helpers'
+import { NOTION_GMAIL_LABEL_ID } from '../../values'
 import { insertOne, sendAuthTokenResetEmail } from "../../services"
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 interface ITimestampedError {
   date: string
@@ -56,7 +56,6 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
     throw new Error('Missing either raw or multipart email content')
   }
 
-  const bucket = storage.bucket(ARTICLES_BUCKET_NAME)
   const { headers } = multipart.payload
   const parsed = parseGmail(raw)
   const messageid = parsed?.messageid
@@ -70,42 +69,22 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
 
   const subject = headers.find(h => h.name === 'Subject')?.value?.slice(0,96)
   const from = stripTags(headers.find(h => h.name === 'From')?.value)
-  const content = await htmlToPdfBuffer(mailHtml)
   
   const filePath = `${stripEmojis(from)}/${getStorageDateString()}/${subject}`
-  const pdfFile = bucket.file(`${filePath}.pdf`)
-  const htmlFile = bucket.file(`${filePath}.html`)
-
-  let doFilesAlreadyExist
-  try {
-    doFilesAlreadyExist = (await pdfFile.isPublic())[0] && (await htmlFile.isPublic())[0]
-  } catch (err) {
-    doFilesAlreadyExist = false
-  }
-
-  if (doFilesAlreadyExist) {
-    throw new Error('pdf and html files for this email already exist')
-  }
-  if (!content) {
-    throw new Error('Failure creating pdf buffer of email')
-  }
-
-  await pdfFile.save(content)
-  await htmlFile.save(mailHtml)
+  let imageServiceRes: AxiosResponse<{ htmlUrl: string, pdfUrl: string }, unknown>
 
   try {
-    const testImageServiceRes = await axios.post(`${process.env.IMAGE_SERVICE_URL}/upload`, { filePath, html: mailHtml })
-    console.log('image service response: ', testImageServiceRes.data)
+    imageServiceRes = await axios.post(`${process.env.IMAGE_SERVICE_URL}/upload`, { filePath, html: mailHtml })
   } catch (e) {
-    console.log('Error using the image service: ', e)
+    console.log('Image service error: ', e)
   }
 
   return {
     from,
     subject,
     messageid,
-    pdfUrl: pdfFile.publicUrl(),
-    htmlUrl: htmlFile.publicUrl()
+    pdfUrl: imageServiceRes.data.pdfUrl,
+    htmlUrl: imageServiceRes.data.htmlUrl
   }
 }
 
@@ -136,7 +115,7 @@ const createNotionArticlePage = async ({ from, subject, pdfUrl, htmlUrl }) => {
     })
 
     for (const page of query.results) {
-      if (!isFullPage(page)) continue
+      if (!isFullPageOrDatabase(page)) continue
 
       const titleProp = page.properties.Title
 

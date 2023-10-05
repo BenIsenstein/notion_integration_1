@@ -1,7 +1,8 @@
 import { withConnectAndClose } from '../repositories'
 import { makeDateAndTime } from '../helpers'
-import { Credentials, IGoogleTokensDocument } from '../types'
+import { IGoogleTokensDocument } from '../types'
 import { sendAuthTokenResetEmail } from './auth.service'
+import { Credentials } from 'google-auth-library'
 
 export const insertOne = async (collection, data = {}) => {
     await withConnectAndClose('prod', collection, async (col) => {

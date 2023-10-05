@@ -1,40 +1,31 @@
 {
   "name": "notion_integration_1",
   "version": "1.0.0",
-  "engines": {
-    "node": "16"
-  },
   "description": "Programatically managing contacts, finances, newsletters and more in Notion.",
   "scripts": {
-    "build": "rm -rf dist && tsc",
-    "predev": "rm -rf src/credentials && mkdir src/credentials",
     "dev": "bun --watch run src/index.ts",
-    "prestart": "rm -rf dist/credentials && mkdir dist/credentials",
-    "start": "node dist/index.js",
-    "start-railway-watch": "ts-node src/scripts/startRailwayWatch.js",
-    "renew-watch": "ts-node src/scripts/renewWatchManual.js",
-    "migrate-contacts": "ts-node src/scripts/migrateContactsManual.js",
-    "linecount": "node src/scripts/countLinesInRoot.cjs"
+    "start": "bun run src/index.ts",
+    "start-railway-watch": "bun run src/scripts/startRailwayWatch.js",
+    "linecount": "bun run src/scripts/countLinesInRoot.cjs"
   },
   "author": "Ben Isenstein",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/storage": "^6.5.0",
-    "@google-cloud/tasks": "^3.0.2",
     "@notionhq/client": "^2.2.0",
     "axios": "^1.4.0",
+    "bullmq": "^4.12.2",
     "cookie-parser": "^1.4.6",
     "delay": "^5.0.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "google-auth-library": "^9.1.0",
     "googleapis": "^107.0.0",
     "http-errors": "^2.0.0",
-    "iconv": "^3.0.1",
+    "iconv-lite": "^0.6.3",
     "mongodb": "^4.11.0",
     "morgan": "^1.10.0",
     "node-cron": "^3.0.2",
     "nodemailer": "^6.9.1",
-    "puppeteer": "^17.1.3",
     "quoted-printable": "^1.0.1"
   },
   "devDependencies": {
@@ -47,8 +38,9 @@
     "@types/node-cron": "^3.0.6",
     "@types/nodemailer": "^6.4.7",
     "@types/quoted-printable": "^1.0.0",
-    "ts-node": "^10.9.1",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^4.9.3"
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }

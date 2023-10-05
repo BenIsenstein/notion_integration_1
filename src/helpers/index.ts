@@ -1,6 +1,5 @@
 export * from './getStorageDateString'
 export * from './gmailParser'
-export * from './htmlToPdfBuffer'
 export * from './initGoogleApi'
 export * from './makeDateAndTime'
 export * from './scheduleWithLog'
