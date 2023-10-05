@@ -1,14 +1,7 @@
 {
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
-        "watchPatterns": ["**/*.ts","**/*.js","**/*.json"],
-        "nixpacksPlan": {
-            "phases": {
-                "setup": {
-                    "nixPkgs": ["...","python38","gnumake","gcc"]
-                }
-            }
-        }
+        "watchPatterns": ["**/*.ts","**/*.js","**/*.json"]
     },
     "deploy": {
         "healthcheckPath": "/health",
