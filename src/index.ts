@@ -17,6 +17,10 @@ require('./helpers').initGoogleApi().then(() => {
   app.get('/health', (req, res) => {
     res.sendStatus(200)
   })
+
+  app.get('/jobs-queue', (req, res) => {
+    res.redirect(process.env.HTTP_QUEUE_URL)
+  })
   
   app.use('/api', apiRouter)
 
