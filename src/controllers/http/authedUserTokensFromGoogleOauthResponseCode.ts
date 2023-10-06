@@ -7,5 +7,7 @@ export const authedUserTokensFromGoogleOauthResponseCode = async (req, res) => {
     const { tokens } = await oauth2Client.getToken(code)
     
     await setGoogleTokens({ userId: USER_ID, tokens})
+    oauth2Client.setCredentials(tokens)
+
     res.send('Success! You may leave this window now.')
 }
