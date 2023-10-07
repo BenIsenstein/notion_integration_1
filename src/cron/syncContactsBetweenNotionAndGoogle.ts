@@ -1,3 +1,3 @@
 import { syncContactsBetweenNotionAndGoogle } from "../controllers";
 
-export default ['*/2 * * * *', syncContactsBetweenNotionAndGoogle, 'syncContactsBetweenNotionAndGoogle']
+export default ['*/5 * * * *', syncContactsBetweenNotionAndGoogle, 'syncContactsBetweenNotionAndGoogle']
