@@ -2,7 +2,7 @@ import { gmail } from '../../repositories'
 import { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } from '../../values'
 import { insertOne, insertError } from '../../services'
 import axios from 'axios'
-import { NewJobRequest } from '../../types'
+import { HttpJob } from '../../types'
 
 /* Function to be used later with multiple clients using the application */
 
@@ -41,18 +41,14 @@ const watch = async (
   return watchRes
 }
 
-const createHttpJob = async (delay: number) => {
-  const newJobRequest: NewJobRequest = {
-    job: {
-      method: 'POST',
-      url: `${process.env.WEB_API_URL}/gmail-inbox-subscriptions`
-    },
-    options: {
-      delay
-    }
+const createHttpJob = async (executionTime: number) => {
+  const newJob: HttpJob = {
+    method: 'POST',
+    url: `${process.env.WEB_API_URL}/gmail-inbox-subscriptions`,
+    executionTime,
   }
 
-  return await axios.post(`${process.env.HTTP_QUEUE_URL}/jobs`, newJobRequest)
+  return await axios.post(`${process.env.HTTP_QUEUE_URL}/jobs`, newJob)
 }
 
 export const renewGmailPushNotificationsWatch = async (req, res) => {
@@ -61,9 +57,8 @@ export const renewGmailPushNotificationsWatch = async (req, res) => {
 
     //const labelIds = await getLabelIdsByName()
     const watchRes = await watch()
-    const delayMs = (+watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS) - Date.now()
 
-    await createHttpJob(delayMs)
+    await createHttpJob(+watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS)
     await insertOne('gmail-watch-renewals')
     res.sendStatus(204)
   }

@@ -1,13 +1,10 @@
-import { JobsOptions } from 'bullmq'
-
 export interface HttpJob {
-    method: 'GET' |'POST' | 'PUT' | 'PATCH' | 'OPTIONS' | 'DELETE',
-    url: string,
-    headers?: Record<string, string>,
-    body?: Record<string, unknown>
-}
-
-export interface NewJobRequest {
-    job: HttpJob,
-    options: JobsOptions
+    id?: number
+    method: 'GET' |'POST' | 'PUT' | 'PATCH' | 'OPTIONS' | 'DELETE'
+    url: string
+    headers?: string // must be valid JSON
+    body?: string
+    executionTime: number
+    retry?: number
+    processed?: boolean
 }
