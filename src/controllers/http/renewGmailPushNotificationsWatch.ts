@@ -1,6 +1,5 @@
 import { gmail } from '../../repositories'
 import { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } from '../../values'
-import { insertOne, insertError } from '../../services'
 import axios from 'axios'
 import { HttpJob } from '../../types'
 
@@ -59,12 +58,12 @@ export const renewGmailPushNotificationsWatch = async (req, res) => {
     const watchRes = await watch()
 
     await createHttpJob(+watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS)
-    await insertOne('gmail-watch-renewals')
+    //await insertOne('gmail-watch-renewals')
     res.sendStatus(204)
   }
   catch (err) {
     console.log(err)
-    await insertError('gmail-watch-renewal-failures', err)
+    //await insertError('gmail-watch-renewal-failures', err)
     res.sendStatus(500)
   }
 }

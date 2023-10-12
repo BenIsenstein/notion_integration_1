@@ -1,6 +1,4 @@
-import { Credentials } from 'google-auth-library'
-
-export interface IGoogleTokensDocument {
+export type GoogleTokensRow = {
     userId: string
-    tokens: Credentials
+    tokens: string
 }

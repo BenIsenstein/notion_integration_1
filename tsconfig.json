@@ -7,7 +7,7 @@
   "exclude": ["src/test.*"],
   "compilerOptions": {
     "target": "ES2015",
-    "module": "CommonJS",
+    "module": "esnext",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -17,9 +17,9 @@
     "rootDir": "src",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "allowSyntheticDefaultImports": true
-  },
-  "types": [
-    "bun-types" // add Bun global
-  ]
+    "allowSyntheticDefaultImports": true,
+    "types": [
+      "bun-types" // add Bun global
+    ]
+  }
 }

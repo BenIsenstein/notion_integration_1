@@ -3,8 +3,9 @@ import { getGoogleTokens } from '../services'
 import { USER_ID } from '../values'
 
 export const initGoogleApi = async () => {
-    oauth2Client.setCredentials(await getGoogleTokens(USER_ID))
-    google.options({
-        auth: oauth2Client
-    })
+    const tokens = await getGoogleTokens(USER_ID)
+
+    if (tokens) oauth2Client.setCredentials(tokens)
+    
+    google.options({ auth: oauth2Client })
 }

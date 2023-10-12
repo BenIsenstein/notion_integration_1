@@ -7,3 +7,4 @@ src/test.*
 .env.prod
 .DS_Store
 experiments
+sqlite

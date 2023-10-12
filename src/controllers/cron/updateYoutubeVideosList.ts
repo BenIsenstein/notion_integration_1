@@ -1,10 +1,3 @@
-// for testing only:
-
-// const { resolve }  = require('path')
-// require("dotenv").config({
-//     path: resolve(process.cwd(), '.env.prod')
-// })
-
 import {
     checkForNotionVideoPage,
     createNotionVideoPage,

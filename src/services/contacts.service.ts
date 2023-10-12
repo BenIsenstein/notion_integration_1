@@ -1,15 +1,36 @@
 import { people_v1 } from "googleapis"
 import { GaxiosResponse } from "gaxios"
 import { CreatePageResponse } from "@notionhq/client/build/src/api-endpoints"
-import { notion, openCollection, people } from "../repositories"
+import { notion, people, db } from "../repositories"
 import {
     IGoogleContactInfo,
     INotionContactInfo,
     INotionContactResponse,
     IContactUpdatePayload,
-    IMongoDbContactInfo,
+    IDbContactInfo,
 } from '../types'
-import { useGooglePagination, useNotionPagination } from "../helpers"
+import { 
+  queryPayloadFromObject, 
+  useGooglePagination, 
+  useNotionPagination
+} from "../helpers"
+import { makeInsertQuery, makeUpdateQuery } from '../helpers/sqlite'
+
+const CONTACTS_TABLE_NAME = 'contacts'
+const CONTACTS_ROW_KEYS = ['displayName', 'phoneNumber', 'email', 'googleId', 'googleEtag', 'notionId']
+
+const _getDbContacts = db.query('SELECT * from contacts;')
+const _insertContact = db.query(makeInsertQuery(CONTACTS_TABLE_NAME, CONTACTS_ROW_KEYS))
+const _updateContact = db.query(makeUpdateQuery(CONTACTS_TABLE_NAME, CONTACTS_ROW_KEYS))
+const _deleteContact = db.query('DELETE FROM contacts WHERE id = ?1;')
+
+export const getDbContacts = () => _getDbContacts.all() as IDbContactInfo[]
+
+export const insertDbContact = (contact: IDbContactInfo) => _insertContact.run(queryPayloadFromObject(contact))
+
+export const updateDbContact = (contact: IDbContactInfo) => _updateContact.run(queryPayloadFromObject(contact))
+
+export const deleteDbContact = (id: number) => _deleteContact.run(id)
 
 export const getGoogleContacts = async (): Promise<IGoogleContactInfo[]> => {
     const results: IGoogleContactInfo[] = []
@@ -97,7 +118,7 @@ export const updateGoogleContact = async (
 ): Promise<
     GaxiosResponse<people_v1.Schema$Person>
 > => {
-    const { displayName, phoneNumber, email, googleId, googleEtag } = contact
+    const { displayName, phoneNumber, email, googleId, googleEtag } = contact as IDbContactInfo
     const [ givenName, ...rest ] = displayName.split(' ')
     const familyName = rest?.join(' ') || null
     
@@ -158,7 +179,7 @@ export const createNotionContact = async (
 export const updateNotionContact = async (
     contact: IContactUpdatePayload["contact"]
 ): Promise<CreatePageResponse> => {
-    const { displayName, phoneNumber, email, notionId } = contact
+    const { displayName, phoneNumber, email, notionId } = contact as INotionContactInfo
 
     return await notion.updatePage({
         page_id: notionId,
@@ -183,15 +204,12 @@ export const updateNotionContact = async (
 }
 
 export const refreshGoogleContactsEtags = async () => {
-    console.log('--- refreshing google contacts etags ---\n\n')
-    const { collection: contacts, close } = await openCollection<IMongoDbContactInfo>('prod', 'contacts')
-    const googleContacts = await getGoogleContacts()
-  
-    for (const index in googleContacts) {
-      console.log(`updating contact ${+index + 1} of ${googleContacts.length}...`)
-      const { googleId, googleEtag } = googleContacts[index]
-      await contacts.updateOne({ googleId }, { $set: { googleEtag }})
-    }
-  
-    await close()
+  console.log('--- refreshing google contacts etags ---\n\n')
+  const googleContacts = await getGoogleContacts()
+  const _updateEtag = db.query('UPDATE contacts SET googleEtag = ?1 WHERE googleId = ?2;')
+
+  for (const index in googleContacts) {
+    console.log(`updating contact ${+index + 1} of ${googleContacts.length}...`)
+    _updateEtag.run(googleContacts[index].googleEtag, googleContacts[index].googleId)
+  }
 }

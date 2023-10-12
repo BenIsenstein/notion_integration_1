@@ -1,8 +1,8 @@
 import { isFullPageOrDatabase } from "@notionhq/client"
-import { gmail, withConnectAndClose, notion } from '../../repositories'
+import { gmail, notion } from '../../repositories'
 import { parseGmail, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../../helpers'
 import { NOTION_GMAIL_LABEL_ID } from '../../values'
-import { insertOne, sendAuthTokenResetEmail } from "../../services"
+import { sendAuthTokenResetEmail } from "../../services"
 import axios, { AxiosResponse } from 'axios'
 
 interface ITimestampedError {
@@ -189,7 +189,7 @@ export const processEmailArticle = async (req, res) => {
     const createPageRes = await createNotionArticlePage(info)
   
     if (createPageRes) {
-      await insertOne('processed-emails', { messageId: info.messageid })
+      //await insertOne('processed-emails', { messageId: info.messageid })
       await gmail.users.messages.trash({
         userId: emailAddress,
         id: info.messageid
@@ -201,13 +201,13 @@ export const processEmailArticle = async (req, res) => {
   
     throw new Error('Unsuccessful Notion page creation')
   } catch (error) {
-    await withConnectAndClose<ITimestampedError, void>(
-      'prod',
-      'article-pubsub-failures',
-      async (col) => {
-        await col.insertOne({ ...makeDateAndTime(), error: error.toString() })
-      }
-    )
+    // await withConnectAndClose<ITimestampedError, void>(
+    //   'prod',
+    //   'article-pubsub-failures',
+    //   async (col) => {
+    //     await col.insertOne({ ...makeDateAndTime(), error: error.toString() })
+    //   }
+    // )
     if (error.message.includes("reading 'access_token'")) {
       await sendAuthTokenResetEmail()
     }

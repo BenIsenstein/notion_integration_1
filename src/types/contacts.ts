@@ -1,5 +1,3 @@
-import { Document } from "mongodb"
-
 interface IContactInfoCommon {
     displayName: string
     phoneNumber?: string
@@ -9,19 +7,19 @@ interface IContactInfoCommon {
 export interface IGoogleContactInfo extends IContactInfoCommon {
     googleId: string
     googleEtag: string
-    [key: string]: string
 }
 
 export interface INotionContactInfo extends IContactInfoCommon {
     notionId: string
-    [key: string]: string
 }
 
-export interface IMongoDbContactInfo extends Document, IContactInfoCommon, IGoogleContactInfo, INotionContactInfo {}
+export interface IDbContactInfo extends IGoogleContactInfo, INotionContactInfo {
+    id?: number
+}
 
 export interface IContactUpdatePayload {
     action: 'newContact' | 'updateContact' | 'deleteContact'
-    contact: IMongoDbContactInfo | IGoogleContactInfo | INotionContactInfo
+    contact: IDbContactInfo
 }
 
 export interface INotionContactResponse {

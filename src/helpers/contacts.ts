@@ -1,6 +1,12 @@
-import { CONTACT_SYNC_ERROR_CAUSES, IContactUpdatePayload } from "../types/contacts"
+import {
+    CONTACT_SYNC_ERROR_CAUSES,
+    IContactUpdatePayload,
+    IDbContactInfo,
+    IGoogleContactInfo,
+    INotionContactInfo
+} from "../types/contacts"
 
-export const isContactEmpty = (contact: IContactUpdatePayload["contact"]) => {
+export const isContactEmpty = (contact: IDbContactInfo | INotionContactInfo | IGoogleContactInfo) => {
     return !contact.displayName || (!contact.phoneNumber && !contact.email)
 }
 

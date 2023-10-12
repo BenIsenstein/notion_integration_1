@@ -1,4 +1,4 @@
-import { notion, people, openCollection } from '../../repositories'
+import { notion, people } from '../../repositories'
 import {
   determineCauseOfError,
   hasContactInfoChanged,
@@ -15,22 +15,20 @@ import {
   updateGoogleContact,
   updateNotionContact,
   refreshGoogleContactsEtags,
-  insertError,
-  sendAuthTokenResetEmail
+  sendAuthTokenResetEmail,
+  getDbContacts,
+  insertDbContact,
+  updateDbContact,
+  deleteDbContact
 } from '../../services'
-import {
-  CONTACT_SYNC_ERROR_CAUSES,
-  IContactUpdatePayload,
-  IMongoDbContactInfo
-} from '../../types'
+import { CONTACT_SYNC_ERROR_CAUSES, IContactUpdatePayload } from '../../types'
 
 const syncContactsController = async () => {
-  const { collection: contacts, close } = await openCollection<IMongoDbContactInfo>('prod', 'contacts')  
   const successfulUpdates: Map<IContactUpdatePayload, null> = new Map()
   const googleIdToEtagRecord: Record<string, string> = {}
 
   try {
-    const mongoDbContacts = await contacts.find().toArray()
+    const dbContacts = getDbContacts()
     const googleContacts = await getGoogleContacts()
     const notionContacts = await getNotionContacts()
     const notionContactUpdates: IContactUpdatePayload[] = []
@@ -45,13 +43,14 @@ const syncContactsController = async () => {
     // determine updates that have taken place in notion
     for (const contact of notionContacts) {
       if (isContactEmpty(contact)) continue
-      const mongoDbContact = mongoDbContacts.find((mongoDbContact) => mongoDbContact.notionId === contact.notionId)
+      const mongoDbContact = dbContacts.find((mongoDbContact) => mongoDbContact.notionId === contact.notionId)
 
       for (const key in contact) {
         if (!contact[key]) contact[key] = null
       }
 
       if (!mongoDbContact) {
+        // @ts-ignore
         notionContactUpdates.push({ action: 'newContact', contact })
       }
       else if (hasContactInfoChanged(contact, mongoDbContact)) {
@@ -62,13 +61,14 @@ const syncContactsController = async () => {
     // determine updates that have taken place in google
     for (const contact of googleContacts) {
       if (isContactEmpty(contact)) continue
-      const mongoDbContact = mongoDbContacts.find((mongoDbContact) => mongoDbContact.googleId === contact.googleId)
+      const mongoDbContact = dbContacts.find((mongoDbContact) => mongoDbContact.googleId === contact.googleId)
 
       for (const key in contact) {
         if (!contact[key]) contact[key] = null
       }
 
       if (!mongoDbContact) {
+        // @ts-ignore
         googleContactUpdates.push({ action: 'newContact', contact })
       }
       else if (hasContactInfoChanged(contact, mongoDbContact)) {
@@ -77,7 +77,7 @@ const syncContactsController = async () => {
     }
 
     // determine deletes that have taken place in both platforms
-    for (const contact of mongoDbContacts) {
+    for (const contact of dbContacts) {
       const isContactInNotion = !!notionContacts.find((notionContact) => notionContact.notionId === contact.notionId)
       const isContactInGoogle = !!googleContacts.find((googleContact) => googleContact.googleId === contact.googleId)
 
@@ -145,45 +145,41 @@ const syncContactsController = async () => {
     // sync all updates to mongo
     for (const commonUpdate of successfulUpdates.keys()) {
       if (commonUpdate.action === 'newContact') {
-        await contacts.insertOne(commonUpdate.contact as IMongoDbContactInfo)
+        insertDbContact(commonUpdate.contact)
       }
       else if (commonUpdate.action === 'updateContact') {
         commonUpdate.contact.googleEtag = googleIdToEtagRecord[commonUpdate.contact.googleId]
-        await contacts.updateOne({ _id: commonUpdate.contact._id }, { $set: commonUpdate.contact })
+        updateDbContact(commonUpdate.contact)
       }
       else if (commonUpdate.action === 'deleteContact') {
-        await contacts.deleteOne({ _id: commonUpdate.contact._id })
+        deleteDbContact(commonUpdate.contact.id!)
       }
 
       successfulUpdates.delete(commonUpdate)
     }
-
-    await close()
   }
   catch (error) {
     try {
       // commit everything to mongo that synced before the error
       for (const commonUpdate of successfulUpdates.keys()) {
         if (commonUpdate.action === 'newContact') {
-          await contacts.insertOne(commonUpdate.contact as IMongoDbContactInfo)
+          insertDbContact(commonUpdate.contact)
         }
         else if (commonUpdate.action === 'updateContact') {
           commonUpdate.contact.googleEtag = googleIdToEtagRecord[commonUpdate.contact.googleId]
-          await contacts.updateOne({ _id: commonUpdate.contact._id }, { $set: commonUpdate.contact })
+          updateDbContact(commonUpdate.contact)
         }
         else if (commonUpdate.action === 'deleteContact') {
-          await contacts.deleteOne({ _id: commonUpdate.contact._id })
+          deleteDbContact(commonUpdate.contact.id!)
         }
 
         successfulUpdates.delete(commonUpdate)
       }
 
-      await close()
       console.log(error)
       throw new Error(error.message)
     }
     catch (error) {
-      await close()
       console.log(error)
       throw new Error(error.message)
     }
@@ -199,7 +195,7 @@ export const syncContactsBetweenNotionAndGoogle = async () => {
     const causeOfError = determineCauseOfError(error)
 
     console.log({ message, stack })
-    await insertError('contacts-sync-errors', error)
+    //await insertError('contacts-sync-errors', error)
 
     if (causeOfError === CONTACT_SYNC_ERROR_CAUSES.GOOGLE_CONTACTS_ETAGS_NOT_REFRESHED) {
       await refreshGoogleContactsEtags()
@@ -215,7 +211,7 @@ export const syncContactsBetweenNotionAndGoogle = async () => {
     catch (err) {
       const { message, stack } = err
       console.log({ message, stack })
-      await insertError('contacts-sync-errors-after-fix-attempt', error)
+      //await insertError('contacts-sync-errors-after-fix-attempt', error)
     }
   }
 }
