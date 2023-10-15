@@ -18,6 +18,7 @@ export const createConsentPageUrl = (
         access_type: 'offline',
         scope: scopes,
         include_granted_scopes: true,
+        prompt: 'consent'
     })
 }
 
