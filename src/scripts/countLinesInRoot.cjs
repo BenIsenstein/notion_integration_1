@@ -5,6 +5,7 @@ const DIR_IGNORE = [
     '.vercel',
     'dist',
     'node_modules',
+    'sqlite',
     '.git',
     'package-lock.json',
 ]

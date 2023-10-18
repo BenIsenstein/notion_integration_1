@@ -1,8 +1,8 @@
 import { isFullPageOrDatabase } from "@notionhq/client"
-import { gmail, notion } from '../../repositories'
-import { parseGmail, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../../helpers'
-import { NOTION_GMAIL_LABEL_ID } from '../../values'
-import { sendAuthTokenResetEmail } from "../../services"
+import { gmail, notion } from '../repositories'
+import { parseGmail, getStorageDateString, stripEmojis, stripTags, makeDateAndTime } from '../helpers'
+import { NOTION_GMAIL_LABEL_ID } from '../values'
+import { sendAuthTokenResetEmail } from "../services"
 import axios, { AxiosResponse } from 'axios'
 
 interface ITimestampedError {

@@ -5,16 +5,16 @@ import {
     makeYoutubePlaylistItemsFetcher,
     makeYoutubeVideosFetcher,
     updateNotionPageTitle
-} from '../../services'
+} from '../services'
 import {
     useNotionPagination,
     useGooglePagination,
     iYoutubeVideoFromVideoItem,
     LIST_CHANNELS_NOTION_ARGS,
     channelsConfigFromNotionResults
-} from '../../helpers'
+} from '../helpers'
 
-export const updateYoutubeVideosController = async () => {
+export const updateYoutubeVideosController = async (req, res) => {
     await useNotionPagination(
         LIST_CHANNELS_NOTION_ARGS,
         async (notionChannelsPage) => {

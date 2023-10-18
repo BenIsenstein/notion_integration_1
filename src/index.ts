@@ -3,12 +3,10 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import apiRouter from './routes/apiRouter'
-import { startJobs } from './cron'
 import { initGoogleApi } from './helpers'
 
 ;(async () => {
   await initGoogleApi()
-  console.log('initializing express app')
   const app = express()
   
   app.use(logger('dev'))
@@ -37,5 +35,4 @@ import { initGoogleApi } from './helpers'
 
   const port = process.env.PORT ? Number(process.env.PORT) : 3000
   app.listen(port, '::', () => console.log('Server listening on port ' + port))
-  startJobs()
 })()

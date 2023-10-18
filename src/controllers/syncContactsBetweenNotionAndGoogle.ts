@@ -1,4 +1,4 @@
-import { notion, people } from '../../repositories'
+import { notion, people } from '../repositories'
 import {
   determineCauseOfError,
   hasContactInfoChanged,
@@ -6,7 +6,7 @@ import {
   mergeIdenticalContactUpdate,
   wasSameUpdateMadeInGoogle,
   wasSameUpdateMadeInNotion
-} from '../../helpers'
+} from '../helpers'
 import {
   getGoogleContacts,
   getNotionContacts,
@@ -19,9 +19,10 @@ import {
   getDbContacts,
   insertDbContact,
   updateDbContact,
-  deleteDbContact
-} from '../../services'
-import { CONTACT_SYNC_ERROR_CAUSES, IContactUpdatePayload } from '../../types'
+  deleteDbContact,
+  createHttpJob
+} from '../services'
+import { CONTACT_SYNC_ERROR_CAUSES, IContactUpdatePayload } from '../types'
 
 const syncContactsController = async () => {
   const successfulUpdates: Map<IContactUpdatePayload, null> = new Map()
@@ -186,15 +187,19 @@ const syncContactsController = async () => {
   }
 }
 
-export const syncContactsBetweenNotionAndGoogle = async () => {
+export const syncContactsBetweenNotionAndGoogle = async (req, res) => {
+  let code = 204
+  let message = 'Success'
+  const timeReceived = Date.now()
+
   try {
     await syncContactsController()
   }
   catch (error) {
-    const { message, stack } = error
+    const { message: err1Message, stack } = error
     const causeOfError = determineCauseOfError(error)
 
-    console.log({ message, stack })
+    console.log({ message: err1Message, stack })
     //await insertError('contacts-sync-errors', error)
 
     if (causeOfError === CONTACT_SYNC_ERROR_CAUSES.GOOGLE_CONTACTS_ETAGS_NOT_REFRESHED) {
@@ -209,9 +214,23 @@ export const syncContactsBetweenNotionAndGoogle = async () => {
       await syncContactsController()
     }
     catch (err) {
-      const { message, stack } = err
-      console.log({ message, stack })
+      const { message: err2Message, stack } = err
+      console.log({ message: err2Message, stack })
+      message = err2Message
+      code = 500
       //await insertError('contacts-sync-errors-after-fix-attempt', error)
     }
   }
+
+  try {
+    createHttpJob({
+      method: 'POST',
+      url: `${process.env.WEB_API_URL}/contacts-sync-runs`,
+      executionTime: timeReceived + 300000
+    })
+  } catch (e) {
+    console.log('Error enqueuing new contacts sync job: ', e)
+  }
+
+  res.sendStatus(code).send(message)
 }
