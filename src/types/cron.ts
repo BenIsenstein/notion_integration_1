@@ -1,1 +1,0 @@
-export type CronJob = [string, Function, string]
