@@ -5,7 +5,9 @@ import logger from 'morgan'
 import apiRouter from './routes/apiRouter'
 import { startJobs } from './cron'
 import { initGoogleApi } from './helpers'
+import { readdirSync } from 'fs'
 
+console.log(readdirSync(import.meta.dir + '/..'))
 ;(async () => {
   await initGoogleApi()
   const app = express()

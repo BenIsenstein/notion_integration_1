@@ -4,7 +4,7 @@
   "description": "Programatically managing contacts, finances, newsletters and more in Notion.",
   "scripts": {
     "dev": "bun --watch run src/index.ts",
-    "prestart": "if [ ! -d \"./sqlite\" ]; then mkdir \"./sqlite\"; fi",
+    "create-sql-dir": "if [ ! -d \"./sqlite\" ]; then mkdir \"./sqlite\"; fi",
     "start": "bun run src/index.ts",
     "start-railway-watch": "bun run src/scripts/startRailwayWatch.js",
     "linecount": "bun run src/scripts/countLinesInRoot.cjs"
