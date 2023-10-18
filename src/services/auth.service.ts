@@ -40,6 +40,7 @@ export const getGoogleTokens = async (userId: string): Promise<Credentials | nul
     if (!tokens) {
         console.log('No Google tokens found, sending email to reset them...')
         await sendAuthTokenResetEmail()
+        console.log('email sent!')
         return null
     }
 
