@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "bun --watch run src/index.ts",
     "create-sql-dir": "if [ ! -d \"./sqlite\" ]; then mkdir \"./sqlite\"; fi",
-    "start": "bun run src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify",
+    "start": "bun run dist/index.js",
     "start-railway-watch": "bun run src/scripts/startRailwayWatch.js",
     "linecount": "bun run src/scripts/countLinesInRoot.cjs"
   },

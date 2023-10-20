@@ -1,6 +1,6 @@
 import { Database } from 'bun:sqlite'
 
-export const db = new Database(import.meta.dir + '/../../sqlite/db.sqlite')
+export const db = new Database(process.cwd() + '/sqlite/db.sqlite')
 
 db.run('PRAGMA journal_mode = WAL;')
 
