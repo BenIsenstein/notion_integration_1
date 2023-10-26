@@ -188,9 +188,9 @@ const syncContactsController = async () => {
 }
 
 export const syncContactsBetweenNotionAndGoogle = async (req, res) => {
-  let code = 204
-  let message = 'Success'
   const timeReceived = Date.now()
+  let code = 200
+  let message = 'Success'
 
   try {
     await syncContactsController()
@@ -222,15 +222,16 @@ export const syncContactsBetweenNotionAndGoogle = async (req, res) => {
     }
   }
 
-  try {
-    createHttpJob({
-      method: 'POST',
-      url: `${process.env.WEB_API_URL}/contacts-sync-runs`,
-      executionTime: timeReceived + 300000
-    })
-  } catch (e) {
-    console.log('Error enqueuing new contacts sync job: ', e)
-  }
+  // try {
+  //   createHttpJob({
+  //     method: 'POST',
+  //     url: `${process.env.WEB_API_URL}/contacts-sync-runs`,
+  //     executionTime: timeReceived + 300000
+  //   })
+  // } catch (e) {
+  //   console.log('Error enqueuing new contacts sync job: ', e)
+  // }
 
+  res.header('x-next-execution-ms', timeReceived + 300000)
   res.sendStatus(code).send(message)
 }

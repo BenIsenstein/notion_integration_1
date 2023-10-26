@@ -1,5 +1,6 @@
 import { APIErrorCode, ClientErrorCode } from "@notionhq/client"
-import delay from 'delay'
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 // handle a rate limit error from the Notion API by delaying based on the retry-after header
 const handleNotionApiRateLimit = async (error: any) => {

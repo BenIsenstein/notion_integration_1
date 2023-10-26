@@ -74,5 +74,6 @@ export const eraseEmptyJournals = async (req, res) => {
       console.log('Error enqueuing new erase journals job: ', e)
     }
 
+    // res.header('x-next-execution-ms', tomorrow.getTime())
     res.sendStatus(code).send(message)
 }
