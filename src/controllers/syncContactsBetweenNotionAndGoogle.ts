@@ -196,10 +196,9 @@ export const syncContactsBetweenNotionAndGoogle = async (req, res) => {
     await syncContactsController()
   }
   catch (error) {
-    const { message: err1Message, stack } = error
     const causeOfError = determineCauseOfError(error)
 
-    console.log({ message: err1Message, stack })
+    console.log(error.message)
     //await insertError('contacts-sync-errors', error)
 
     if (causeOfError === CONTACT_SYNC_ERROR_CAUSES.GOOGLE_CONTACTS_ETAGS_NOT_REFRESHED) {
@@ -214,9 +213,8 @@ export const syncContactsBetweenNotionAndGoogle = async (req, res) => {
       await syncContactsController()
     }
     catch (err) {
-      const { message: err2Message, stack } = err
-      console.log({ message: err2Message, stack })
-      message = err2Message
+      console.log(err.message)
+      message = err.message
       code = 500
       //await insertError('contacts-sync-errors-after-fix-attempt', error)
     }
