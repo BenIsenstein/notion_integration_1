@@ -1,7 +1,6 @@
 import { isFullPage } from '@notionhq/client'
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { notion } from '../repositories'
-import { createHttpJob } from '../services'
 
 export const eraseEmptyJournals = async (req, res) => {
     let code = 204
@@ -64,16 +63,6 @@ export const eraseEmptyJournals = async (req, res) => {
     tomorrow.setUTCHours(8, 0, 0, 0)
     tomorrow.setDate(tomorrow.getDate() + 1)
 
-    try {
-      await createHttpJob({
-        method: 'DELETE',
-        url: `${process.env.WEB_API_URL}/journals`,
-        executionTime: tomorrow.getTime(),
-      })
-    } catch (e) {
-      console.log('Error enqueuing new erase journals job: ', e)
-    }
-
-    // res.header('x-next-execution-ms', tomorrow.getTime())
+    res.header('x-next-execution-ms', tomorrow.getTime())
     res.sendStatus(code).send(message)
 }

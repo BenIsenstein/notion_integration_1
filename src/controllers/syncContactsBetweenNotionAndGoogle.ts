@@ -20,7 +20,6 @@ import {
   insertDbContact,
   updateDbContact,
   deleteDbContact,
-  createHttpJob
 } from '../services'
 import { CONTACT_SYNC_ERROR_CAUSES, IContactUpdatePayload } from '../types'
 
@@ -219,16 +218,6 @@ export const syncContactsBetweenNotionAndGoogle = async (req, res) => {
       //await insertError('contacts-sync-errors-after-fix-attempt', error)
     }
   }
-
-  // try {
-  //   createHttpJob({
-  //     method: 'POST',
-  //     url: `${process.env.WEB_API_URL}/contacts-sync-runs`,
-  //     executionTime: timeReceived + 300000
-  //   })
-  // } catch (e) {
-  //   console.log('Error enqueuing new contacts sync job: ', e)
-  // }
 
   res.header('x-next-execution-ms', timeReceived + 300000)
   res.sendStatus(code).send(message)
