@@ -9,7 +9,7 @@ const TOKENS_ROW_KEYS = ['userId', 'tokens']
 
 const _getGoogleTokens = db.query<GoogleTokensRow, string>('SELECT * FROM google_tokens WHERE userId = ?1;')
 const _insertGoogleTokens = db.query(makeInsertQuery(TOKENS_TABLE_NAME, TOKENS_ROW_KEYS))
-const _updateGoogleTokens = db.query(makeUpdateQuery(TOKENS_TABLE_NAME, TOKENS_ROW_KEYS))
+const _updateGoogleTokens = db.query(makeUpdateQuery(TOKENS_TABLE_NAME, TOKENS_ROW_KEYS, 'userId'))
 
 export const createConsentPageUrl = (
     scopes: string[] = GOOGLE_OAUTH_DEFAULT_SCOPES

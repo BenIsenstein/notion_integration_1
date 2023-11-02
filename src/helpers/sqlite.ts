@@ -1,8 +1,7 @@
 export const queryPayloadFromObject = (obj: Object) => {
-    return Object.keys(obj).reduce((result, key) => ({
-        ...result,
-        ['$' + key]: obj[key]
-    }), {})
+    const payload = {}
+    for (const key in obj) payload[`$${key}`] = obj[key]
+    return payload
 }
 
 export const makeInsertQuery = (table: string, keys: string[]) => {
@@ -10,8 +9,8 @@ export const makeInsertQuery = (table: string, keys: string[]) => {
         VALUES (${keys.map(key => '$' + key).join(', ')});`
 }
 
-export const makeUpdateQuery = (table: string, keys: string[]) => {
+export const makeUpdateQuery = (table: string, keys: string[], idColumn = 'id') => {
     return `UPDATE ${table}
-        SET ${keys.map((key) => `${key} = ${'$' + key}`).join(', ')}
-        WHERE id = $id;`
+        SET ${keys.map((key) => `${key} = $${key}`).join(', ')}
+        WHERE ${idColumn} = $${idColumn};`
 }
