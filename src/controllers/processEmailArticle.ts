@@ -83,8 +83,8 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
     from,
     subject,
     messageid,
-    pdfUrl: imageServiceRes.data.pdfUrl,
-    htmlUrl: imageServiceRes.data.htmlUrl
+    pdfUrl: imageServiceRes?.data.pdfUrl,
+    htmlUrl: imageServiceRes?.data.htmlUrl
   }
 }
 

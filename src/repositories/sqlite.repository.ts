@@ -16,7 +16,7 @@ db.run(`CREATE TABLE IF NOT EXISTS contacts (
 
 db.run(`CREATE TABLE IF NOT EXISTS google_tokens (
   id INTEGER PRIMARY KEY,
-  userId NVARCHAR(255) NOT NULL,
+  userId NVARCHAR(255) NOT NULL UNIQUE,
   tokens TEXT NOT NULL
 );`)
 
