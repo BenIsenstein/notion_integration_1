@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Programatically managing contacts, finances, newsletters and more in Notion.",
   "scripts": {
-    "dev": "bun --watch run src/index.ts",
+    "dev": "bun run create-sql-dir && bun --watch run src/index.ts",
     "create-sql-dir": "if [ ! -d \"./sqlite\" ]; then mkdir \"./sqlite\"; fi",
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify",
     "start": "bun run dist/index.js",

@@ -76,7 +76,7 @@ const extractInfoFromMessage = async ({ raw, multipart }) => {
   try {
     imageServiceRes = await axios.post(`${process.env.IMAGE_SERVICE_URL}/upload`, { filePath, html: mailHtml })
   } catch (e) {
-    console.log('Image service error: ', e)
+    console.log('Image service error: ', e.message)
   }
 
   return {

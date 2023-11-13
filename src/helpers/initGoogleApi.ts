@@ -6,7 +6,7 @@ export const initGoogleApi = async () => {
     const tokens = await getGoogleTokens(USER_ID)
 
     if (tokens) {
-        console.log('found stored tokens in SQLite: ', JSON.stringify(tokens, null, ' '))
+        console.log('found stored tokens in SQLite!')
         oauth2Client.setCredentials(tokens)
     } else {
         console.log('WARNING, no tokens stored in SQLite')
