@@ -1,6 +1,5 @@
 import { gmail } from '../repositories'
 import { NOTION_GMAIL_LABEL_ID, ONE_HOUR_OF_MILLISECONDS, USER_ID, PUBSUB_TOPIC } from '../values'
-import { createHttpJob } from '../services'
 
 /* Function to be used later with multiple clients using the application */
 
@@ -41,22 +40,21 @@ const watch = async (
 
 export const renewGmailPushNotificationsWatch = async (req, res) => {
   try {
+    console.log('STOPPING GMAIL WATCH')
     await stop()
 
     //const labelIds = await getLabelIdsByName()
+    console.log("RESTARTING GMAIL WATCH")
     const watchRes = await watch()
 
-    await createHttpJob({
-      method: 'POST',
-      url: `${process.env.WEB_API_URL}/gmail-inbox-subscriptions`,
-      executionTime: +watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS,
-    })
-
     //await insertOne('gmail-watch-renewals')
+    console.log('SENDING RESPONSE')
+    res.header('x-next-execution-ms',  +watchRes.data.expiration - ONE_HOUR_OF_MILLISECONDS)
     res.sendStatus(204)
+    console.log('SUCCESSFULLY RENEWED GMAIL WATCH')
   }
   catch (err) {
-    console.log(err)
+    console.log('RENEW GMAIL WATCH ERROR: ', err.message)
     //await insertError('gmail-watch-renewal-failures', err)
     res.sendStatus(500)
   }
