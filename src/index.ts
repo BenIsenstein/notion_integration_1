@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import apiRouter from './routes/apiRouter'
 import { initGoogleApi } from './helpers'
+import { db } from './repositories'
 
 ;(async () => {
   await initGoogleApi()
@@ -16,6 +17,18 @@ import { initGoogleApi } from './helpers'
 
   app.get('/health', (req, res) => {
     res.sendStatus(200)
+  })
+
+  app.post('/db', (req, res) => {
+    const query: string = req.body.query
+    if (!query) return res.status(400).send('SQL Query Required')
+    if ((req.headers.Authorization || req.headers.authorization) !== `Bearer ${process.env.SQLITE_TOKEN}`) return res.sendStatus(403)
+
+    try {
+      res.status(200).json(db.prepare(query).all())
+    } catch(e) {
+      res.status(400).send(e.message)
+    }
   })
 
   app.use('/api', apiRouter)
