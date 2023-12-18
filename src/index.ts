@@ -22,7 +22,7 @@ import { db } from './repositories'
   app.post('/db', (req, res) => {
     const query: string = req.body.query
     if (!query) return res.status(400).send('SQL Query Required')
-    if ((req.headers.Authorization || req.headers.authorization) !== `Bearer ${process.env.SQLITE_TOKEN}`) return res.sendStatus(403)
+    if ((req.headers.Authorization || req.headers.authorization) !== `Bearer ${process.env.SQLITE_TOKEN}`) return res.sendStatus(401)
 
     try {
       res.status(200).json(db.prepare(query).all())
