@@ -7,8 +7,7 @@ export const PRODUCT_TO_OAUTH_SCOPE_MAP = {
         "openid"
     ],
     GMAIL: [
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email"
+        "https://www.googleapis.com/auth/gmail.modify",
     ],
     CONTACTS: [
         "https://www.googleapis.com/auth/userinfo.profile",
